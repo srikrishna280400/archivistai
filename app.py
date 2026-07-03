@@ -3,12 +3,16 @@ import json
 import re
 from datetime import datetime, timedelta
 import pandas as pd
+import requests
 from flask import Flask, jsonify, request, render_template, send_from_directory, redirect
 
 app = Flask(__name__, template_folder="templates")
 
 DB_FILE = "articles_database.json"
 EXCEL_FILE = "consolidated_categorized_articles.xlsx"
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 TAGS = [
     "psychology",
@@ -34,7 +38,43 @@ TAGS = [
     "health"
 ]
 
+def is_supabase_enabled():
+    return bool(SUPABASE_URL and SUPABASE_KEY)
+
+def get_supabase_headers():
+    return {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+    }
+
+def delete_expired_from_supabase(art_id):
+    if is_supabase_enabled():
+        url = f"{SUPABASE_URL}/rest/v1/articles?id=eq.{art_id}"
+        try:
+            requests.delete(url, headers=get_supabase_headers(), timeout=5)
+        except Exception as e:
+            print(f"Error deleting expired article {art_id} from Supabase: {e}")
+
 def load_db():
+    if is_supabase_enabled():
+        try:
+            url = f"{SUPABASE_URL}/rest/v1/articles?order=id.asc"
+            res = requests.get(url, headers=get_supabase_headers(), timeout=10)
+            if res.status_code == 200:
+                articles = res.json()
+                # Run auto-cleanup of trash older than 15 days
+                cleaned_articles, changed = clean_expired_trash(articles)
+                if changed:
+                    for a in articles:
+                        if a not in cleaned_articles:
+                            delete_expired_from_supabase(a["id"])
+                return cleaned_articles
+        except Exception as e:
+            print(f"Supabase fetch failed, falling back to local database: {e}")
+
+    # Fallback to local
     if not os.path.exists(DB_FILE):
         return []
     with open(DB_FILE, 'r', encoding='utf-8') as f:
@@ -97,6 +137,36 @@ def sync_to_excel(articles):
     df = pd.DataFrame(rows)
     df.to_excel(EXCEL_FILE, index=False)
 
+def update_supabase_article(art_id, payload):
+    if is_supabase_enabled():
+        url = f"{SUPABASE_URL}/rest/v1/articles?id=eq.{art_id}"
+        try:
+            res = requests.patch(url, headers=get_supabase_headers(), json=payload, timeout=5)
+            return res.status_code in [200, 201, 204]
+        except Exception as e:
+            print(f"Error updating Supabase article {art_id}: {e}")
+    return False
+
+def delete_supabase_article(art_id):
+    if is_supabase_enabled():
+        url = f"{SUPABASE_URL}/rest/v1/articles?id=eq.{art_id}"
+        try:
+            res = requests.delete(url, headers=get_supabase_headers(), timeout=5)
+            return res.status_code in [200, 201, 204]
+        except Exception as e:
+            print(f"Error deleting Supabase article {art_id}: {e}")
+    return False
+
+def insert_supabase_article(payload):
+    if is_supabase_enabled():
+        url = f"{SUPABASE_URL}/rest/v1/articles"
+        try:
+            res = requests.post(url, headers=get_supabase_headers(), json=payload, timeout=5)
+            return res.status_code in [200, 201, 204]
+        except Exception as e:
+            print(f"Error inserting Supabase article: {e}")
+    return False
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -133,6 +203,11 @@ def update_tag(art_id):
     if new_tag and new_tag not in TAGS:
         return jsonify({"error": f"Invalid tag. Must be one of {TAGS}"}), 400
         
+    if is_supabase_enabled():
+        if update_supabase_article(art_id, {"assigned_tag": new_tag if new_tag else None}):
+            return jsonify({"success": True, "message": f"Updated article {art_id} tag to '{new_tag}'"})
+        return jsonify({"error": "Failed to update tag in Supabase"}), 500
+
     articles = load_db()
     found = False
     for a in articles:
@@ -149,11 +224,17 @@ def update_tag(art_id):
 
 @app.route("/api/articles/<int:art_id>/trash", methods=["POST"])
 def trash_article(art_id):
+    deleted_time = datetime.utcnow().isoformat()
+    if is_supabase_enabled():
+        if update_supabase_article(art_id, {"deleted_at": deleted_time}):
+            return jsonify({"success": True, "message": f"Article {art_id} moved to Trash bin"})
+        return jsonify({"error": "Failed to move article to Trash in Supabase"}), 500
+
     articles = load_db()
     found = False
     for a in articles:
         if a["id"] == art_id:
-            a["deleted_at"] = datetime.utcnow().isoformat()
+            a["deleted_at"] = deleted_time
             found = True
             break
     if not found:
@@ -163,6 +244,11 @@ def trash_article(art_id):
 
 @app.route("/api/articles/<int:art_id>/restore", methods=["POST"])
 def restore_article(art_id):
+    if is_supabase_enabled():
+        if update_supabase_article(art_id, {"deleted_at": None}):
+            return jsonify({"success": True, "message": f"Article {art_id} restored from Trash bin"})
+        return jsonify({"error": "Failed to restore article in Supabase"}), 500
+
     articles = load_db()
     found = False
     for a in articles:
@@ -177,6 +263,11 @@ def restore_article(art_id):
 
 @app.route("/api/articles/<int:art_id>/delete", methods=["DELETE"])
 def delete_permanent(art_id):
+    if is_supabase_enabled():
+        if delete_supabase_article(art_id):
+            return jsonify({"success": True, "message": f"Article {art_id} permanently deleted"})
+        return jsonify({"error": "Failed to delete article in Supabase"}), 500
+
     articles = load_db()
     filtered = [a for a in articles if a["id"] != art_id]
     if len(filtered) == len(articles):
@@ -215,6 +306,11 @@ def share_target():
         "deleted_at": None
     }
     
+    if is_supabase_enabled():
+        if insert_supabase_article(new_article):
+            return redirect("/")
+        return redirect("/?error=supabase_save_failed")
+        
     articles.append(new_article)
     save_db(articles)
     
