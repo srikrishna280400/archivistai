@@ -3,14 +3,29 @@ import json
 import requests
 
 DB_FILE = "articles_database.json"
+
+def load_env_file():
+    if os.path.exists(".env"):
+        with open(".env", "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ[key.strip()] = val.strip().strip('"').strip("'")
+
+# Load variables from .env file if it exists
+load_env_file()
+
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 def main():
     if not SUPABASE_URL or not SUPABASE_KEY:
-        print("❌ Error: SUPABASE_URL and SUPABASE_KEY environment variables must be set!")
-        print("Please export them or run this script with them set. For example:")
-        print("SUPABASE_URL=https://xyz.supabase.co SUPABASE_KEY=your_anon_key python upload_to_supabase.py")
+        print("❌ Error: SUPABASE_URL and SUPABASE_KEY are not set!")
+        print("Please create a file named .env in this folder and add your keys:")
+        print("SUPABASE_URL=https://your-project.supabase.co")
+        print("SUPABASE_KEY=your-anon-key")
+        print("\nOr, run the script with environment variables set in the terminal.")
         return
 
     if not os.path.exists(DB_FILE):

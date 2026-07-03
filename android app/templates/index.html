@@ -62,6 +62,14 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(99, 102, 241, 0.7);
         }
+        /* Hide scrollbars but keep scrolling functionality */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
         /* Custom glassmorphism and subtle background animation */
         body {
             background: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
@@ -106,47 +114,43 @@
         .tag-health { background: rgba(20, 184, 166, 0.15); border-color: rgba(20, 184, 166, 0.3); color: #2dd4bf; }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col overflow-hidden">
-    <div id="app" class="flex flex-col h-screen" v-cloak>
+<body class="text-slate-100 min-h-screen flex flex-col overflow-hidden bg-slate-950">
+    <div id="app" class="flex flex-col h-[100dvh]" v-cloak>
         {% raw %}
         <!-- Top Navbar -->
-        <header class="glass h-16 border-b border-slate-800 flex items-center justify-between px-6 z-10 shrink-0">
-            <div class="flex items-center space-x-3">
-                <div class="bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 p-2.5 rounded-xl shadow-lg shadow-indigo-500/10">
-                    <i class="fa-solid fa-box-archive text-lg"></i>
+        <header class="glass h-16 border-b border-slate-800 flex items-center justify-between px-4 z-10 shrink-0">
+            <div class="flex items-center space-x-2 shrink-0">
+                <div class="bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 p-2 rounded-xl shadow-lg shadow-indigo-500/10">
+                    <i class="fa-solid fa-box-archive text-base"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+                    <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
                         Archivist AI
                     </h1>
-                    <p class="text-xs text-slate-400">Smart Article Organization Dashboard</p>
                 </div>
             </div>
             
-            <!-- Quick Stat Banner -->
-            <div class="hidden md:flex items-center space-x-6 text-sm">
+            <!-- Quick Stat Banner - Beautiful, Compact & Responsive for Mobile -->
+            <div class="flex items-center space-x-1.5 text-xs">
                 <!-- PWA Install Prompt Button -->
-                <button v-if="installPromptTriggered" @click="installPWA" class="flex items-center space-x-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg shadow transition duration-200">
+                <button v-if="installPromptTriggered" @click="installPWA" class="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow transition duration-200 text-[10px] shrink-0">
                     <i class="fa-solid fa-download"></i>
-                    <span>Install App</span>
+                    <span>Install</span>
                 </button>
 
-                <div class="flex items-center space-x-2 glass px-3 py-1.5 rounded-lg border border-slate-800">
-                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span class="text-slate-400">Total:</span>
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Total Articles">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
                     <span class="font-bold text-white">{{ stats.total_articles || 0 }}</span>
                 </div>
-                <div class="flex items-center space-x-2 glass px-3 py-1.5 rounded-lg border border-slate-800">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span class="text-slate-400">Crawled:</span>
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Crawled Articles">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span class="font-bold text-emerald-400">{{ stats.crawl_counts?.success || 0 }}</span>
                 </div>
-                <div class="flex items-center space-x-2 glass px-3 py-1.5 rounded-lg border border-slate-800">
-                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                    <span class="text-slate-400">Trash Bin:</span>
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Trash Bin">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                     <span class="font-bold text-rose-400">{{ stats.total_trash || 0 }}</span>
                 </div>
-                <button @click="refreshData" class="text-slate-400 hover:text-white transition duration-200 p-2 rounded-lg glass border border-slate-800">
+                <button @click="refreshData" class="text-slate-400 hover:text-white transition duration-200 p-1.5 rounded-lg glass border border-slate-800 shrink-0">
                     <i class="fa-solid fa-rotate" :class="{'animate-spin': loading}"></i>
                 </button>
             </div>
@@ -154,8 +158,8 @@
 
         <!-- Main Body Grid -->
         <div class="flex flex-1 overflow-hidden">
-            <!-- Left Panel (Sidebar - Articles & Filter List) -->
-            <aside class="w-[450px] border-r border-slate-800 flex flex-col h-full bg-slate-950/40 shrink-0">
+            <!-- Main Scrollable Library Panel -->
+            <main class="flex-1 flex flex-col h-full bg-slate-950/40 min-w-0">
                 <!-- Search & Filters -->
                 <div class="p-4 border-b border-slate-800/80 space-y-3 shrink-0">
                     <div class="relative">
@@ -169,31 +173,31 @@
                     </div>
                     
                     <!-- Source filter tabs -->
-                    <div class="grid grid-cols-5 gap-1 p-1 bg-slate-900/60 rounded-lg border border-slate-800/60 text-[11px] font-semibold text-slate-400">
+                    <div class="grid grid-cols-5 gap-1 p-1 bg-slate-900/60 rounded-lg border border-slate-800/60 text-[10px] font-semibold text-slate-400">
                         <button @click="sourceFilter = 'all'" :class="{'bg-slate-800 text-white shadow': sourceFilter === 'all'}" class="py-1.5 rounded-md text-center transition duration-150">
                             All
                         </button>
                         <button @click="sourceFilter = 'pocket'" :class="{'bg-indigo-600/20 border border-indigo-500/30 text-indigo-400': sourceFilter === 'pocket'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
-                            <i class="fa-brands fa-get-pocket"></i>
-                            <span>Pocket</span>
+                            <i class="fa-brands fa-get-pocket text-rose-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Pocket</span>
                         </button>
                         <button @click="sourceFilter = 'instapaper'" :class="{'bg-amber-600/20 border border-amber-500/30 text-amber-400': sourceFilter === 'instapaper'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
-                            <i class="fa-solid fa-bookmark"></i>
-                            <span>Instapaper</span>
+                            <i class="fa-solid fa-bookmark text-amber-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Insta</span>
                         </button>
                         <button @click="sourceFilter = 'shared'" :class="{'bg-emerald-600/20 border border-emerald-500/30 text-emerald-400': sourceFilter === 'shared'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
-                            <i class="fa-solid fa-share-nodes"></i>
-                            <span>Shared</span>
+                            <i class="fa-solid fa-share-nodes text-emerald-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Shared</span>
                         </button>
                         <button @click="sourceFilter = 'trash'" :class="{'bg-rose-600/20 border border-rose-500/30 text-rose-400': sourceFilter === 'trash'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5 relative">
-                            <i class="fa-solid fa-trash-can"></i>
-                            <span>Trash</span>
+                            <i class="fa-solid fa-trash-can text-rose-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Trash</span>
                             <span v-if="stats.total_trash > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] px-1 rounded-full">{{ stats.total_trash }}</span>
                         </button>
                     </div>
 
                     <!-- Tags list horizontal scroll -->
-                    <div class="flex space-x-2 overflow-x-auto pb-1 select-none text-xs">
+                    <div class="flex space-x-2 overflow-x-auto pb-1 select-none text-xs scrollbar-none">
                         <button @click="selectedTag = ''" 
                                 :class="selectedTag === '' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
                                 class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium">
@@ -230,9 +234,9 @@
                     </div>
                     
                     <div v-else v-for="article in paginatedArticles" 
-                         :key="article.id"
-                         @click="selectArticle(article)"
-                         :class="['group p-3.5 rounded-xl border border-slate-900/40 bg-slate-900/10 cursor-pointer hover:bg-slate-900/40 hover:border-slate-800 transition duration-150 relative', selectedArticle?.id === article.id ? 'card-active' : '']">
+                          :key="article.id"
+                          @click="openArticleLink(article)"
+                          class="group p-3.5 rounded-xl border border-slate-900/40 bg-slate-900/10 hover:bg-slate-900/30 active:bg-slate-900/50 hover:border-slate-800/80 active:scale-[0.99] transition-all duration-150 cursor-pointer relative shadow-md">
                         
                         <div class="flex items-start justify-between space-x-2.5">
                             <h3 class="font-medium text-sm text-slate-200 group-hover:text-white line-clamp-2 transition-colors duration-150 flex-1 leading-snug">
@@ -306,139 +310,6 @@
                         </button>
                     </div>
                 </div>
-            </aside>
-
-            <!-- Right Panel (Main Viewer Window) -->
-            <main class="flex-1 flex flex-col h-full bg-slate-950/20 relative">
-                <!-- Splash Screen if no article is selected -->
-                <div v-if="!selectedArticle" class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6 select-none max-w-2xl mx-auto my-auto z-0">
-                    <div class="relative">
-                        <div class="absolute inset-0 bg-indigo-500/10 rounded-full filter blur-xl animate-pulse"></div>
-                        <div class="relative bg-slate-900 border border-indigo-500/20 p-6 rounded-full text-indigo-400">
-                            <i class="fa-solid fa-chart-pie text-5xl"></i>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold tracking-tight text-white mb-2">Welcome to Archivist AI Library</h2>
-                        <p class="text-sm text-slate-400 leading-relaxed">
-                            A curated dashboard of your saved web content. We've consolidated and parallel-classified your 1,742 articles into clean, non-overlapping categories based on headlines using Groq LLM pipelines.
-                        </p>
-                    </div>
-                    
-                    <!-- Dashboard Statistics Card -->
-                    <div class="w-full glass-premium p-6 rounded-2xl border border-slate-800 grid grid-cols-2 gap-4 text-left">
-                        <div class="p-4 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                            <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase block mb-1">Database Sync Status</span>
-                            <span class="text-sm text-slate-200 font-semibold flex items-center space-x-1.5">
-                                <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                                <span>Synced to Excel</span>
-                            </span>
-                        </div>
-                        <div class="p-4 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                            <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase block mb-1">PWA / App Status</span>
-                            <span class="text-sm text-slate-200 font-semibold flex items-center space-x-1.5">
-                                <i class="fa-solid fa-mobile-screen-button text-indigo-400"></i>
-                                <span>Android 7+ PWA Compatible</span>
-                            </span>
-                        </div>
-                        <div class="col-span-2 p-4 bg-slate-900/40 rounded-xl border border-slate-800/40">
-                            <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase block mb-2">Category Overview</span>
-                            <div class="flex flex-wrap gap-1.5">
-                                <span v-for="tag in topTags" :key="tag.name" class="px-2 py-0.5 text-[10px] rounded-full font-semibold border bg-slate-900 text-slate-400 border-slate-800">
-                                    {{ formatTag(tag.name) }} ({{ tag.count }})
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-xs text-slate-500">Select an article on the left sidebar to read, edit tags, or explore.</p>
-                </div>
-
-                <!-- Reader and Iframe Viewer Panel -->
-                <div v-else class="flex-1 flex flex-col h-full overflow-hidden">
-                    <!-- Selected Article Header -->
-                    <div class="glass border-b border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 shrink-0">
-                        <div class="flex-1 mr-4">
-                            <div class="flex items-center space-x-2.5 mb-1.5">
-                                <span v-if="selectedArticle.assigned_tag" :class="['px-3 py-0.5 text-xs rounded-full font-bold border', getTagClass(selectedArticle.assigned_tag)]">
-                                    {{ formatTag(selectedArticle.assigned_tag) }}
-                                </span>
-                                <span v-else class="px-3 py-0.5 text-xs rounded-full font-bold border bg-slate-800 text-slate-400 border-slate-700">
-                                    Untagged
-                                </span>
-                                <span class="text-xs text-slate-400 flex items-center space-x-1">
-                                    <i v-if="selectedArticle.original_source==='pocket'" class="fa-brands fa-get-pocket text-rose-400"></i>
-                                    <i v-else-if="selectedArticle.original_source==='instapaper'" class="fa-solid fa-bookmark text-amber-400"></i>
-                                    <i v-else class="fa-solid fa-share-nodes text-emerald-400"></i>
-                                    <span>{{ formatSourceName(selectedArticle.original_source) }}</span>
-                                </span>
-                            </div>
-                            <h2 class="text-base font-bold text-white leading-snug line-clamp-1" :title="getArticleHeadline(selectedArticle)">
-                                {{ getArticleHeadline(selectedArticle) }}
-                            </h2>
-                            <p class="text-[11px] text-slate-400 truncate mt-1">
-                                <span class="font-mono text-indigo-400/80">{{ selectedArticle.url }}</span>
-                            </p>
-                        </div>
-                        
-                        <!-- Control Actions -->
-                        <div class="flex items-center space-x-3 shrink-0">
-                            <!-- Quick Edit Dropdown inside Header -->
-                            <div v-if="!selectedArticle.deleted_at" class="flex items-center bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
-                                <span class="text-slate-400 mr-2 font-medium">Tag:</span>
-                                <select :value="selectedArticle.assigned_tag || ''" 
-                                        @change="updateArticleTag(selectedArticle, $event.target.value)" 
-                                        class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer">
-                                    <option value="">Untagged</option>
-                                    <option v-for="t in tags" :value="t">{{ formatTag(t) }}</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Move to trash / Restore depending on state -->
-                            <button v-if="!selectedArticle.deleted_at"
-                                    @click="trashArticle(selectedArticle)"
-                                    class="px-4 py-2 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-300 text-xs font-semibold rounded-xl flex items-center space-x-2 transition duration-150">
-                                <i class="fa-regular fa-trash-can"></i>
-                                <span>Trash Link</span>
-                            </button>
-                            <button v-else
-                                    @click="restoreArticle(selectedArticle)"
-                                    class="px-4 py-2 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-800/40 text-emerald-300 text-xs font-semibold rounded-xl flex items-center space-x-2 transition duration-150">
-                                <i class="fa-solid fa-rotate-left"></i>
-                                <span>Restore Link</span>
-                            </button>
-
-                            <!-- Open Original Tab -->
-                            <a :href="selectedArticle.url" target="_blank" 
-                               class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-2 transition duration-150 shadow-lg shadow-indigo-600/10">
-                                <span>Open Link</span>
-                                <i class="fa-solid fa-up-right-from-square"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Embedding IFrame / Reader Frame Area -->
-                    <div class="flex-1 bg-slate-900/30 relative flex flex-col">
-                        <!-- Warning/Notice Bar -->
-                        <div class="bg-indigo-950/40 border-b border-indigo-500/15 px-6 py-2 flex items-center justify-between text-xs text-indigo-300">
-                            <span class="flex items-center space-x-2">
-                                <i class="fa-solid fa-triangle-exclamation text-indigo-400"></i>
-                                <span>Note: Some publishers block in-app frames. If the area below is blank, use the <b>Open Link</b> button.</span>
-                            </span>
-                            <a :href="selectedArticle.url" target="_blank" class="font-bold underline hover:text-indigo-200 flex items-center space-x-1">
-                                <span>Open in New Tab</span>
-                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                            </a>
-                        </div>
-                        
-                        <!-- Actual Iframe -->
-                        <div class="flex-1 w-full relative">
-                            <iframe :src="selectedArticle.url" 
-                                    class="absolute inset-0 w-full h-full border-none bg-white rounded-b-xl"
-                                    sandbox="allow-scripts allow-same-origin allow-popups">
-                            </iframe>
-                        </div>
-                    </div>
-                </div>
             </main>
         </div>
         {% endraw %}
@@ -458,7 +329,6 @@
                 const searchQuery = ref('');
                 const selectedTag = ref('');
                 const sourceFilter = ref('all');
-                const selectedArticle = ref(null);
                 const pageLimit = ref(50);
                 const installPromptEvent = ref(null);
                 const installPromptTriggered = ref(false);
@@ -585,8 +455,11 @@
                     return filteredArticles.value.slice(0, pageLimit.value);
                 });
 
-                const selectArticle = (article) => {
-                    selectedArticle.value = article;
+                // Directly open article original link in a new browser tab/window
+                const openArticleLink = (article) => {
+                    if (article && article.url) {
+                        window.open(article.url, '_blank');
+                    }
                 };
 
                 // Update Tag on the Backend and Sync Excel
@@ -618,9 +491,6 @@
                         });
                         if (response.ok) {
                             article.deleted_at = new Date().toISOString();
-                            if (selectedArticle.value?.id === article.id) {
-                                selectedArticle.value = null;
-                            }
                             const statsRes = await fetch('/api/stats');
                             stats.value = await statsRes.json();
                         }
@@ -654,9 +524,6 @@
                         });
                         if (response.ok) {
                             articles.value = articles.value.filter(a => a.id !== article.id);
-                            if (selectedArticle.value?.id === article.id) {
-                                selectedArticle.value = null;
-                            }
                             const statsRes = await fetch('/api/stats');
                             stats.value = await statsRes.json();
                         }
@@ -694,7 +561,6 @@
                     searchQuery,
                     selectedTag,
                     sourceFilter,
-                    selectedArticle,
                     pageLimit,
                     paginatedArticles,
                     filteredArticles,
@@ -708,7 +574,7 @@
                     getTagCount,
                     formatSourceName,
                     getArticleHeadline,
-                    selectArticle,
+                    openArticleLink,
                     updateArticleTag,
                     trashArticle,
                     restoreArticle,
