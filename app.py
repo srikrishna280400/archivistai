@@ -171,6 +171,25 @@ def insert_supabase_article(payload):
 def index():
     return render_template("index.html")
 
+@app.route("/android")
+def android_index():
+    android_template_path = os.path.join(app.root_path, "android app", "templates", "index.html")
+    if os.path.exists(android_template_path):
+        with open(android_template_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return content
+    return render_template("index.html")
+
+@app.route("/manifest-android.json")
+def serve_android_manifest():
+    android_manifest_path = os.path.join(app.root_path, "android app", "templates", "manifest.json")
+    if os.path.exists(android_manifest_path):
+        with open(android_manifest_path, "r", encoding="utf-8") as f:
+            manifest_data = json.load(f)
+        manifest_data["start_url"] = "/android"
+        return jsonify(manifest_data)
+    return send_from_directory("templates", "manifest.json", mimetype="application/json")
+
 # Serve PWA manifest and service worker from the root for strict scoping
 @app.route("/manifest.json")
 def serve_manifest():
