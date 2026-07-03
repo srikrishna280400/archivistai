@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivist AI - Personal Article Library</title>
+    <!-- Web App Manifest for PWA and Android Share Sheet integration -->
+    <link rel="manifest" href="/manifest-android.json">
+    <meta name="theme-color" content="#3b66ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                          50: '#f0f4ff',
+                          100: '#e1e9ff',
+                          200: '#c7d7ff',
+                          300: '#9fbcff',
+                          400: '#6d95ff',
+                          500: '#3b66ff',
+                          600: '#2544eb',
+                          700: '#1b30d6',
+                          800: '#1c28ac',
+                          900: '#1c2688',
+                          950: '#111553',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+        /* Hide scrollbars but keep scrolling functionality */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* Custom glassmorphism and subtle background animation */
+        body {
+            background: radial-gradient(circle at 50% 50%, #111827 0%, #030712 100%);
+            font-family: 'Outfit', sans-serif;
+        }
+        .glass {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glass-premium {
+            background: linear-gradient(135deg, rgba(20, 24, 48, 0.8) 0%, rgba(10, 12, 26, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+        .card-active {
+            border-color: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+            background: linear-gradient(90deg, rgba(30, 32, 60, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%) !important;
+        }
+        /* Color mapping for tag badges */
+        .tag-psychology { background: rgba(147, 51, 234, 0.15); border-color: rgba(147, 51, 234, 0.3); color: #c084fc; }
+        .tag-music { background: rgba(236, 72, 153, 0.15); border-color: rgba(236, 72, 153, 0.3); color: #f472b6; }
+        .tag-geopoltics-history { background: rgba(234, 179, 8, 0.15); border-color: rgba(234, 179, 8, 0.3); color: #facc15; }
+        .tag-inspiration { background: rgba(45, 212, 191, 0.15); border-color: rgba(45, 212, 191, 0.3); color: #2dd4bf; }
+        .tag-tennis { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
+        .tag-football { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; }
+        .tag-cricket { background: rgba(249, 115, 22, 0.15); border-color: rgba(249, 115, 22, 0.3); color: #fb923c; }
+        .tag-formula-1 { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
+        .tag-badminton { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #34d399; }
+        .tag-cinema { background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.3); color: #fb7185; }
+        .tag-indian-politics { background: rgba(217, 70, 239, 0.15); border-color: rgba(217, 70, 239, 0.3); color: #e879f9; }
+        .tag-indian-history { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; }
+        .tag-tech-science { background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.3); color: #22d3ee; }
+        .tag-interesting { background: rgba(107, 114, 128, 0.15); border-color: rgba(107, 114, 128, 0.3); color: #9ca3af; }
+        .tag-literature { background: rgba(129, 140, 248, 0.15); border-color: rgba(129, 140, 248, 0.3); color: #818cf8; }
+        .tag-hp { background: rgba(192, 132, 252, 0.15); border-color: rgba(192, 132, 252, 0.3); color: #c084fc; }
+        .tag-startup-stories { background: rgba(168, 85, 247, 0.15); border-color: rgba(168, 85, 247, 0.3); color: #c084fc; }
+        .tag-financial-markets { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); color: #4ade80; }
+        .tag-misanthropy { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
+        .tag-startup-vcs-sales { background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); color: #818cf8; }
+        .tag-health { background: rgba(20, 184, 166, 0.15); border-color: rgba(20, 184, 166, 0.3); color: #2dd4bf; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col overflow-hidden bg-slate-950">
+    <div id="app" class="flex flex-col h-[100dvh]" v-cloak>
+        {% raw %}
+        <!-- Top Navbar -->
+        <header class="glass h-16 border-b border-slate-800 flex items-center justify-between px-4 z-10 shrink-0">
+            <div class="flex items-center space-x-2 shrink-0">
+                <div class="bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 p-2 rounded-xl shadow-lg shadow-indigo-500/10">
+                    <i class="fa-solid fa-box-archive text-base"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">
+                        Archivist AI
+                    </h1>
+                </div>
+            </div>
+            
+            <!-- Quick Stat Banner - Beautiful, Compact & Responsive for Mobile -->
+            <div class="flex items-center space-x-1.5 text-xs">
+                <!-- PWA Install Prompt Button -->
+                <button v-if="installPromptTriggered" @click="installPWA" class="flex items-center space-x-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow transition duration-200 text-[10px] shrink-0">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Install</span>
+                </button>
+
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Total Articles">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                    <span class="font-bold text-white">{{ stats.total_articles || 0 }}</span>
+                </div>
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Crawled Articles">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span class="font-bold text-emerald-400">{{ stats.crawl_counts?.success || 0 }}</span>
+                </div>
+                <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-slate-800 text-[10px] shrink-0" title="Trash Bin">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                    <span class="font-bold text-rose-400">{{ stats.total_trash || 0 }}</span>
+                </div>
+                <button @click="refreshData" class="text-slate-400 hover:text-white transition duration-200 p-1.5 rounded-lg glass border border-slate-800 shrink-0">
+                    <i class="fa-solid fa-rotate" :class="{'animate-spin': loading}"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body Grid -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Main Scrollable Library Panel -->
+            <main class="flex-1 flex flex-col h-full bg-slate-950/40 min-w-0">
+                <!-- Search & Filters -->
+                <div class="p-4 border-b border-slate-800/80 space-y-3 shrink-0">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" v-model="searchQuery" 
+                               placeholder="Search articles by title, URL..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:border-indigo-500/70 focus:ring-1 focus:ring-indigo-500/20 text-sm placeholder-slate-500 transition duration-200">
+                        <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Source filter tabs -->
+                    <div class="grid grid-cols-5 gap-1 p-1 bg-slate-900/60 rounded-lg border border-slate-800/60 text-[10px] font-semibold text-slate-400">
+                        <button @click="sourceFilter = 'all'" :class="{'bg-slate-800 text-white shadow': sourceFilter === 'all'}" class="py-1.5 rounded-md text-center transition duration-150">
+                            All
+                        </button>
+                        <button @click="sourceFilter = 'pocket'" :class="{'bg-indigo-600/20 border border-indigo-500/30 text-indigo-400': sourceFilter === 'pocket'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
+                            <i class="fa-brands fa-get-pocket text-rose-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Pocket</span>
+                        </button>
+                        <button @click="sourceFilter = 'instapaper'" :class="{'bg-amber-600/20 border border-amber-500/30 text-amber-400': sourceFilter === 'instapaper'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
+                            <i class="fa-solid fa-bookmark text-amber-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Insta</span>
+                        </button>
+                        <button @click="sourceFilter = 'shared'" :class="{'bg-emerald-600/20 border border-emerald-500/30 text-emerald-400': sourceFilter === 'shared'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5">
+                            <i class="fa-solid fa-share-nodes text-emerald-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Shared</span>
+                        </button>
+                        <button @click="sourceFilter = 'trash'" :class="{'bg-rose-600/20 border border-rose-500/30 text-rose-400': sourceFilter === 'trash'}" class="py-1.5 rounded-md text-center transition duration-150 flex items-center justify-center space-x-0.5 relative">
+                            <i class="fa-solid fa-trash-can text-rose-400 sm:mr-1"></i>
+                            <span class="hidden min-[380px]:inline">Trash</span>
+                            <span v-if="stats.total_trash > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] px-1 rounded-full">{{ stats.total_trash }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Tags list horizontal scroll -->
+                    <div class="flex space-x-2 overflow-x-auto pb-1 select-none text-xs scrollbar-none">
+                        <button @click="selectedTag = ''" 
+                                :class="selectedTag === '' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
+                                class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium">
+                            All Categories
+                        </button>
+                        <!-- Add explicit Untagged option -->
+                        <button @click="selectedTag = 'untagged'" 
+                                :class="selectedTag === 'untagged' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
+                                class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium">
+                            Untagged ({{ untaggedCount }})
+                        </button>
+                        <button v-for="tag in tags" @click="selectedTag = tag" 
+                                :class="selectedTag === tag ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
+                                class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium flex items-center space-x-1">
+                            <span>{{ formatTag(tag) }}</span>
+                            <span class="text-[10px] bg-slate-950/40 text-slate-400 px-1.5 py-0.5 rounded-full font-bold">
+                                {{ getTagCount(tag) }}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Articles Scrollable List -->
+                <div class="flex-1 overflow-y-auto divide-y divide-slate-900/60 p-3 space-y-2">
+                    <!-- Loading skeleton/state -->
+                    <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-slate-500 space-y-3">
+                        <i class="fa-solid fa-spinner animate-spin text-4xl text-indigo-400"></i>
+                        <p class="text-sm">Loading Library...</p>
+                    </div>
+
+                    <div v-else-if="filteredArticles.length === 0" class="flex flex-col items-center justify-center py-20 text-slate-500 space-y-3">
+                        <i class="fa-regular fa-folder-open text-4xl text-slate-600"></i>
+                        <p class="text-sm">No articles match your filters.</p>
+                    </div>
+                    
+                    <div v-else v-for="article in paginatedArticles" 
+                          :key="article.id"
+                          @click="openArticleLink(article)"
+                          class="group p-3.5 rounded-xl border border-slate-900/40 bg-slate-900/10 hover:bg-slate-900/30 active:bg-slate-900/50 hover:border-slate-800/80 active:scale-[0.99] transition-all duration-150 cursor-pointer relative shadow-md">
+                        
+                        <div class="flex items-start justify-between space-x-2.5">
+                            <h3 class="font-medium text-sm text-slate-200 group-hover:text-white line-clamp-2 transition-colors duration-150 flex-1 leading-snug">
+                                {{ getArticleHeadline(article) }}
+                            </h3>
+                            
+                            <!-- Source Icon Badge -->
+                            <span class="shrink-0 text-xs text-slate-500 mt-0.5">
+                                <i v-if="article.original_source === 'pocket'" class="fa-brands fa-get-pocket text-rose-400" title="Pocket"></i>
+                                <i v-else-if="article.original_source === 'instapaper'" class="fa-solid fa-bookmark text-amber-400" title="Instapaper"></i>
+                                <i v-else class="fa-solid fa-share-nodes text-emerald-400" title="Shared"></i>
+                            </span>
+                        </div>
+                        
+                        <!-- Article URL snippet -->
+                        <p class="text-[11px] text-slate-500 truncate mt-1.5 font-mono">
+                            {{ article.url }}
+                        </p>
+                        
+                        <!-- Bottom Row: Tag Badge & Edit Trigger / Trash actions -->
+                        <div class="flex items-center justify-between mt-3">
+                            <span v-if="article.assigned_tag" :class="['px-2.5 py-0.5 text-[11px] rounded-full font-semibold border', getTagClass(article.assigned_tag)]">
+                                {{ formatTag(article.assigned_tag) }}
+                            </span>
+                            <span v-else class="px-2.5 py-0.5 text-[11px] rounded-full font-semibold border bg-slate-800 text-slate-400 border-slate-700">
+                                Untagged
+                            </span>
+                            
+                            <div class="flex items-center space-x-2.5 z-10" @click.stop>
+                                <!-- Quick edit tag selector (Only for non-deleted links) -->
+                                <select v-if="!article.deleted_at"
+                                        @change="updateArticleTag(article, $event.target.value)" 
+                                        class="bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-[10px] rounded px-1.5 py-0.5 text-slate-400 focus:outline-none transition duration-150 cursor-pointer">
+                                    <option value="" :selected="!article.assigned_tag">Untagged</option>
+                                    <option v-for="t in tags" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
+                                </select>
+                                
+                                <!-- Move to Trash button -->
+                                <button v-if="!article.deleted_at" 
+                                        @click="trashArticle(article)" 
+                                        class="text-slate-500 hover:text-rose-400 p-1 rounded hover:bg-slate-800/60 transition"
+                                        title="Move to Trash Bin (stored for 15 days)">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+
+                                <!-- Trash Restore / Permanent Delete button row -->
+                                <div v-else class="flex items-center space-x-1">
+                                    <button @click="restoreArticle(article)"
+                                            class="text-slate-400 hover:text-emerald-400 p-1.5 rounded hover:bg-slate-800/60 transition text-xs flex items-center space-x-0.5"
+                                            title="Restore Link">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                    <button @click="deleteArticlePermanently(article)"
+                                            class="text-slate-400 hover:text-red-500 p-1.5 rounded hover:bg-slate-800/60 transition text-xs"
+                                            title="Delete Permanently">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                                
+                                <span class="text-[10px] text-slate-500 font-medium">
+                                    #{{ article.id }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination button if there are more than current page limit -->
+                    <div v-if="filteredArticles.length > pageLimit" class="pt-4 pb-2 text-center">
+                        <button @click="pageLimit += 50" class="px-5 py-2 glass hover:bg-slate-800/50 text-xs font-semibold rounded-lg border border-slate-800 text-indigo-400 hover:text-indigo-300 transition duration-150">
+                            Load More Articles (showing {{ paginatedArticles.length }} of {{ filteredArticles.length }})
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+        {% endraw %}
+    </div>
+
+    <!-- Vue.js 3 Global Script -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const articles = ref([]);
+                const tags = ref([]);
+                const stats = ref({});
+                const loading = ref(false);
+                const searchQuery = ref('');
+                const selectedTag = ref('');
+                const sourceFilter = ref('all');
+                const pageLimit = ref(50);
+                const installPromptEvent = ref(null);
+                const installPromptTriggered = ref(false);
+
+                // Fetch database and configurations
+                const fetchData = async () => {
+                    loading.value = true;
+                    try {
+                        const [artRes, tagsRes, statsRes] = await Promise.all([
+                            fetch('/api/articles'),
+                            fetch('/api/tags'),
+                            fetch('/api/stats')
+                        ]);
+                        articles.value = await artRes.json();
+                        tags.value = await tagsRes.json();
+                        stats.value = await statsRes.json();
+                    } catch (e) {
+                        console.error("Error loading data from Flask API", e);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const refreshData = async () => {
+                    await fetchData();
+                };
+
+                // Quick metrics list for splash screen
+                const topTags = computed(() => {
+                    if (!stats.value.tag_counts) return [];
+                    return Object.entries(stats.value.tag_counts)
+                        .map(([name, count]) => ({ name, count }))
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 10);
+                });
+
+                // Untagged count helper
+                const untaggedCount = computed(() => {
+                    return articles.value.filter(a => !a.assigned_tag && !a.deleted_at).length;
+                });
+
+                // Tag helpers
+                const formatTag = (tag) => {
+                    if (!tag) return 'Untagged';
+                    if (tag === 'hp') return 'Harry Potter';
+                    if (tag === 'f1') return 'Formula 1';
+                    
+                    return tag.split('/')
+                        .map(word => word.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))
+                        .join(' / ');
+                };
+
+                const getTagClass = (tag) => {
+                    if (!tag) return 'tag-interesting';
+                    const normalized = tag.toLowerCase().replace('/', '-').replace(' ', '-');
+                    return `tag-${normalized}`;
+                };
+
+                const getTagCount = (tag) => {
+                    if (!stats.value.tag_counts) return 0;
+                    return stats.value.tag_counts[tag] || 0;
+                };
+
+                const formatSourceName = (src) => {
+                    if (src === 'pocket') return 'Pocket';
+                    if (src === 'instapaper') return 'Instapaper';
+                    return 'Shared Link';
+                };
+
+                // Get clean article headline (fallback logic)
+                const getArticleHeadline = (article) => {
+                    if (article.crawled_h1) return article.crawled_h1;
+                    if (article.crawled_title) return article.crawled_title;
+                    return article.original_title || 'Untitled Article';
+                };
+
+                // Filtered articles list based on search, source, and tag
+                const filteredArticles = computed(() => {
+                    return articles.value.filter(article => {
+                        // 1. Trash filter separation
+                        if (sourceFilter.value === 'trash') {
+                            if (!article.deleted_at) return false;
+                        } else {
+                            if (article.deleted_at) return false;
+                        }
+
+                        // 2. Source filtering (only non-deleted items)
+                        if (sourceFilter.value !== 'all' && sourceFilter.value !== 'trash') {
+                            if (article.original_source !== sourceFilter.value) {
+                                return false;
+                            }
+                        }
+
+                        // 3. Tag filtering (only non-deleted items)
+                        if (selectedTag.value) {
+                            if (selectedTag.value === 'untagged') {
+                                if (article.assigned_tag) return false;
+                            } else if (article.assigned_tag !== selectedTag.value) {
+                                return false;
+                            }
+                        }
+
+                        // 4. Search query
+                        if (searchQuery.value) {
+                            const query = searchQuery.value.toLowerCase();
+                            const title = article.original_title?.toLowerCase() || '';
+                            const crawledH1 = article.crawled_h1?.toLowerCase() || '';
+                            const crawledTitle = article.crawled_title?.toLowerCase() || '';
+                            const url = article.url?.toLowerCase() || '';
+                            const tag = article.assigned_tag?.toLowerCase() || '';
+                            
+                            return title.includes(query) || 
+                                   crawledH1.includes(query) || 
+                                   crawledTitle.includes(query) || 
+                                   url.includes(query) ||
+                                   tag.includes(query);
+                        }
+                        return true;
+                    });
+                });
+
+                // Paginated list to avoid rendering 1,742 DOM elements instantly
+                const paginatedArticles = computed(() => {
+                    return filteredArticles.value.slice(0, pageLimit.value);
+                });
+
+                // Directly open article original link in a new browser tab/window
+                const openArticleLink = (article) => {
+                    if (article && article.url) {
+                        window.open(article.url, '_blank');
+                    }
+                };
+
+                // Update Tag on the Backend and Sync Excel
+                const updateArticleTag = async (article, newTag) => {
+                    try {
+                        const response = await fetch(`/api/articles/${article.id}/tag`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tag: newTag })
+                        });
+                        if (response.ok) {
+                            article.assigned_tag = newTag ? newTag : null;
+                            const statsRes = await fetch('/api/stats');
+                            stats.value = await statsRes.json();
+                        } else {
+                            const err = await response.json();
+                            alert("Error updating tag: " + err.error);
+                        }
+                    } catch (e) {
+                        console.error("Error updating tag", e);
+                    }
+                };
+
+                // Trash Bin Actions
+                const trashArticle = async (article) => {
+                    try {
+                        const response = await fetch(`/api/articles/${article.id}/trash`, {
+                            method: 'POST'
+                        });
+                        if (response.ok) {
+                            article.deleted_at = new Date().toISOString();
+                            const statsRes = await fetch('/api/stats');
+                            stats.value = await statsRes.json();
+                        }
+                    } catch (e) {
+                        console.error("Error trashing article", e);
+                    }
+                };
+
+                const restoreArticle = async (article) => {
+                    try {
+                        const response = await fetch(`/api/articles/${article.id}/restore`, {
+                            method: 'POST'
+                        });
+                        if (response.ok) {
+                            article.deleted_at = null;
+                            const statsRes = await fetch('/api/stats');
+                            stats.value = await statsRes.json();
+                        }
+                    } catch (e) {
+                        console.error("Error restoring article", e);
+                    }
+                };
+
+                const deleteArticlePermanently = async (article) => {
+                    if (!confirm("Are you sure you want to permanently delete this article from your list? This cannot be undone.")) {
+                        return;
+                    }
+                    try {
+                        const response = await fetch(`/api/articles/${article.id}/delete`, {
+                            method: 'DELETE'
+                        });
+                        if (response.ok) {
+                            articles.value = articles.value.filter(a => a.id !== article.id);
+                            const statsRes = await fetch('/api/stats');
+                            stats.value = await statsRes.json();
+                        }
+                    } catch (e) {
+                        console.error("Error permanently deleting article", e);
+                    }
+                };
+
+                // PWA Install handlers
+                const installPWA = async () => {
+                    if (!installPromptEvent.value) return;
+                    installPromptEvent.value.prompt();
+                    const { outcome } = await installPromptEvent.value.userChoice;
+                    if (outcome === 'accepted') {
+                        installPromptTriggered.value = false;
+                    }
+                };
+
+                onMounted(async () => {
+                    await fetchData();
+
+                    // Listen for PWA install prompt
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        installPromptEvent.value = e;
+                        installPromptTriggered.value = true;
+                    });
+                });
+
+                return {
+                    articles,
+                    tags,
+                    stats,
+                    loading,
+                    searchQuery,
+                    selectedTag,
+                    sourceFilter,
+                    pageLimit,
+                    paginatedArticles,
+                    filteredArticles,
+                    topTags,
+                    untaggedCount,
+                    installPromptTriggered,
+                    fetchData,
+                    refreshData,
+                    formatTag,
+                    getTagClass,
+                    getTagCount,
+                    formatSourceName,
+                    getArticleHeadline,
+                    openArticleLink,
+                    updateArticleTag,
+                    trashArticle,
+                    restoreArticle,
+                    deleteArticlePermanently,
+                    installPWA
+                };
+            }
+        }).mount('#app');
+
+        // Service Worker Registration for Offline/Standalone Compatibility
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker Registered successfully under scope:', reg.scope))
+                    .catch(err => console.error('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
