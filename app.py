@@ -53,6 +53,13 @@ TAGS = [
 def is_supabase_enabled():
     return bool(SUPABASE_URL and SUPABASE_KEY)
 
+def is_mobile_request():
+    try:
+        ua = request.headers.get("User-Agent", "").lower()
+        return any(keyword in ua for keyword in ["android", "iphone", "ipad", "mobile", "opera mini", "iemobile"])
+    except Exception:
+        return False
+
 def get_supabase_headers():
     return {
         "apikey": SUPABASE_KEY,
@@ -154,33 +161,41 @@ def update_supabase_article(art_id, payload):
         url = f"{SUPABASE_URL}/rest/v1/articles?id=eq.{art_id}"
         try:
             res = requests.patch(url, headers=get_supabase_headers(), json=payload, timeout=5)
-            return res.status_code in [200, 201, 204]
+            if res.status_code in [200, 201, 204]:
+                return True, None
+            return False, f"HTTP {res.status_code}: {res.text}"
         except Exception as e:
-            print(f"Error updating Supabase article {art_id}: {e}")
-    return False
+            return False, f"Network Exception: {str(e)}"
+    return False, "Supabase connection not configured on host"
 
 def delete_supabase_article(art_id):
     if is_supabase_enabled():
         url = f"{SUPABASE_URL}/rest/v1/articles?id=eq.{art_id}"
         try:
             res = requests.delete(url, headers=get_supabase_headers(), timeout=5)
-            return res.status_code in [200, 201, 204]
+            if res.status_code in [200, 201, 204]:
+                return True, None
+            return False, f"HTTP {res.status_code}: {res.text}"
         except Exception as e:
-            print(f"Error deleting Supabase article {art_id}: {e}")
-    return False
+            return False, f"Network Exception: {str(e)}"
+    return False, "Supabase connection not configured on host"
 
 def insert_supabase_article(payload):
     if is_supabase_enabled():
         url = f"{SUPABASE_URL}/rest/v1/articles"
         try:
             res = requests.post(url, headers=get_supabase_headers(), json=payload, timeout=5)
-            return res.status_code in [200, 201, 204]
+            if res.status_code in [200, 201, 204]:
+                return True, None
+            return False, f"HTTP {res.status_code}: {res.text}"
         except Exception as e:
-            print(f"Error inserting Supabase article: {e}")
-    return False
+            return False, f"Network Exception: {str(e)}"
+    return False, "Supabase connection not configured on host"
 
 @app.route("/")
 def index():
+    if is_mobile_request():
+        return redirect("/android")
     return render_template("index.html")
 
 @app.route("/android")
@@ -246,8 +261,9 @@ def update_tag(art_id):
         return jsonify({"error": "Article not found"}), 404
         
     if is_supabase_enabled():
-        if not update_supabase_article(art_id, {"assigned_tag": new_tag if new_tag else None}):
-            return jsonify({"error": "Failed to update tag in Supabase"}), 500
+        success, err_msg = update_supabase_article(art_id, {"assigned_tag": new_tag if new_tag else None})
+        if not success:
+            return jsonify({"error": f"Failed to update tag in Supabase. Details: {err_msg}"}), 500
 
     save_db(articles)
     return jsonify({"success": True, "message": f"Updated article {art_id} tag to '{new_tag}'"})
@@ -267,8 +283,9 @@ def trash_article(art_id):
         return jsonify({"error": "Article not found"}), 404
 
     if is_supabase_enabled():
-        if not update_supabase_article(art_id, {"deleted_at": deleted_time}):
-            return jsonify({"error": "Failed to move article to Trash in Supabase"}), 500
+        success, err_msg = update_supabase_article(art_id, {"deleted_at": deleted_time})
+        if not success:
+            return jsonify({"error": f"Failed to move article to Trash in Supabase. Details: {err_msg}"}), 500
 
     save_db(articles)
     return jsonify({"success": True, "message": f"Article {art_id} moved to Trash bin"})
@@ -286,8 +303,9 @@ def restore_article(art_id):
         return jsonify({"error": "Article not found"}), 404
 
     if is_supabase_enabled():
-        if not update_supabase_article(art_id, {"deleted_at": None}):
-            return jsonify({"error": "Failed to restore article in Supabase"}), 500
+        success, err_msg = update_supabase_article(art_id, {"deleted_at": None})
+        if not success:
+            return jsonify({"error": f"Failed to restore article in Supabase. Details: {err_msg}"}), 500
 
     save_db(articles)
     return jsonify({"success": True, "message": f"Article {art_id} restored from Trash bin"})
@@ -300,8 +318,9 @@ def delete_permanent(art_id):
         return jsonify({"error": "Article not found"}), 404
 
     if is_supabase_enabled():
-        if not delete_supabase_article(art_id):
-            return jsonify({"error": "Failed to delete article in Supabase"}), 500
+        success, err_msg = delete_supabase_article(art_id)
+        if not success:
+            return jsonify({"error": f"Failed to delete article in Supabase. Details: {err_msg}"}), 500
 
     save_db(filtered)
     return jsonify({"success": True, "message": f"Article {art_id} permanently deleted"})
@@ -309,7 +328,8 @@ def delete_permanent(art_id):
 @app.route("/api/share", methods=["GET", "POST"])
 def share_target():
     platform = request.args.get("platform") or request.form.get("platform")
-    redirect_target = "/android" if platform == "android" else "/"
+    is_mobile = (platform == "android") or is_mobile_request()
+    redirect_target = "/android" if is_mobile else "/"
     
     url = request.args.get("url") or request.form.get("url")
     title = request.args.get("title") or request.form.get("title")
@@ -341,14 +361,20 @@ def share_target():
     }
     
     if is_supabase_enabled():
-        if insert_supabase_article(new_article):
+        success, err_msg = insert_supabase_article(new_article)
+        if success:
             try:
                 articles.append(new_article)
                 save_db(articles)
             except Exception:
                 pass
             return redirect(redirect_target)
-        return redirect(f"{redirect_target}?error=supabase_save_failed")
+        else:
+            print(f"Supabase share target insert failed: {err_msg}")
+            # Encode error message to make it web-safe and append it to the query parameter
+            from urllib.parse import quote
+            safe_err = quote(str(err_msg))
+            return redirect(f"{redirect_target}?error=supabase_save_failed&details={safe_err}")
         
     articles.append(new_article)
     save_db(articles)
