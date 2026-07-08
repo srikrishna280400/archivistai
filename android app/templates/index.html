@@ -209,7 +209,7 @@
                                 class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium">
                             Untagged ({{ untaggedCount }})
                         </button>
-                        <button v-for="tag in tags" @click="selectedTag = tag" 
+                        <button v-for="tag in sortedTags" @click="selectedTag = tag" 
                                 :class="selectedTag === tag ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
                                 class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium flex items-center space-x-1">
                             <span>{{ formatTag(tag) }}</span>
@@ -434,6 +434,11 @@
                     return articles.value.filter(a => !a.assigned_tag && !a.deleted_at).length;
                 });
 
+                // Sort tags alphabetically in ascending order
+                const sortedTags = computed(() => {
+                    return [...tags.value].sort((a, b) => a.localeCompare(b));
+                });
+
                 // Tag helpers
                 const formatTag = (tag) => {
                     if (!tag) return 'Untagged';
@@ -620,6 +625,7 @@
                 return {
                     articles,
                     tags,
+                    sortedTags,
                     stats,
                     loading,
                     searchQuery,
