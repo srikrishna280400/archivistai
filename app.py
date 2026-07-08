@@ -79,14 +79,33 @@ def delete_expired_from_supabase(art_id):
 def load_db():
     if is_supabase_enabled():
         try:
-            url = f"{SUPABASE_URL}/rest/v1/articles?order=id.asc"
-            res = requests.get(url, headers=get_supabase_headers(), timeout=10)
-            if res.status_code == 200:
-                articles = res.json()
+            all_articles = []
+            offset = 0
+            limit = 1000
+            while True:
+                headers = get_supabase_headers()
+                # PostgREST Range header is 0-indexed and inclusive, e.g. Range: 0-999
+                headers["Range"] = f"{offset}-{offset+limit-1}"
+                url = f"{SUPABASE_URL}/rest/v1/articles?order=id.asc"
+                
+                res = requests.get(url, headers=headers, timeout=10)
+                if res.status_code in [200, 206]:
+                    data = res.json()
+                    if not data:
+                        break
+                    all_articles.extend(data)
+                    if len(data) < limit:
+                        break
+                    offset += limit
+                else:
+                    print(f"Supabase fetch failed at offset {offset}: {res.status_code}")
+                    break
+                    
+            if all_articles:
                 # Run auto-cleanup of trash older than 15 days
-                cleaned_articles, changed = clean_expired_trash(articles)
+                cleaned_articles, changed = clean_expired_trash(all_articles)
                 if changed:
-                    for a in articles:
+                    for a in all_articles:
                         if a not in cleaned_articles:
                             delete_expired_from_supabase(a["id"])
                 return cleaned_articles

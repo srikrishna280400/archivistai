@@ -220,10 +220,27 @@
                     </div>
                 </div>
 
-                <!-- Articles Scrollable List -->
-                <div class="flex-1 overflow-y-auto divide-y divide-slate-900/60 p-3 space-y-2">
+                <!-- Articles Scrollable List (With Pull-to-Refresh Support) -->
+                <div ref="scrollContainer"
+                     @touchstart="onTouchStart"
+                     @touchmove="onTouchMove"
+                     @touchend="onTouchEnd"
+                     class="flex-1 overflow-y-auto divide-y divide-slate-900/60 p-3 space-y-2 relative">
+                    
+                    <!-- Elegant Pull-to-Sync Banner -->
+                    <div v-show="pullDistance > 0 || refreshing" 
+                         :style="{ height: pullDistance + 'px', opacity: Math.min(1, pullDistance / 60) }" 
+                         class="flex items-center justify-center text-indigo-400 bg-slate-950/20 overflow-hidden transition-all duration-75 border-b border-indigo-500/10 shrink-0 rounded-xl mb-2">
+                        <div class="flex items-center space-x-2 py-2">
+                            <i class="fa-solid fa-rotate text-sm transition-transform duration-75" 
+                               :style="{ transform: 'rotate(' + (pullDistance * 6) + 'deg)' }"
+                               :class="{'animate-spin': refreshing}"></i>
+                            <span class="text-xs font-semibold tracking-wide">{{ refreshing ? 'Syncing Library...' : (pullDistance >= 60 ? 'Release to Sync' : 'Pull to Sync') }}</span>
+                        </div>
+                    </div>
+
                     <!-- Loading skeleton/state -->
-                    <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-slate-500 space-y-3">
+                    <div v-if="loading && !refreshing" class="flex flex-col items-center justify-center py-20 text-slate-500 space-y-3">
                         <i class="fa-solid fa-spinner animate-spin text-4xl text-indigo-400"></i>
                         <p class="text-sm">Loading Library...</p>
                     </div>
@@ -332,6 +349,53 @@
                 const pageLimit = ref(50);
                 const installPromptEvent = ref(null);
                 const installPromptTriggered = ref(false);
+
+                // Pull-to-Refresh variables and handlers
+                const scrollContainer = ref(null);
+                const pullDistance = ref(0);
+                const refreshing = ref(false);
+                let startY = 0;
+                let isPulling = false;
+
+                const onTouchStart = (e) => {
+                    if (scrollContainer.value && scrollContainer.value.scrollTop === 0) {
+                        startY = e.touches[0].pageY;
+                        isPulling = true;
+                    } else {
+                        isPulling = false;
+                    }
+                };
+
+                const onTouchMove = (e) => {
+                    if (!isPulling || refreshing.value) return;
+                    const currentY = e.touches[0].pageY;
+                    const diff = currentY - startY;
+                    if (diff > 0) {
+                        pullDistance.value = Math.min(80, diff * 0.4);
+                        if (pullDistance.value > 10 && e.cancelable) {
+                            e.preventDefault();
+                        }
+                    }
+                };
+
+                const onTouchEnd = async () => {
+                    if (!isPulling) return;
+                    isPulling = false;
+                    if (pullDistance.value >= 60) {
+                        refreshing.value = true;
+                        pullDistance.value = 60;
+                        await refreshData();
+                        refreshing.value = false;
+                    }
+                    let reset = setInterval(() => {
+                        if (pullDistance.value > 0) {
+                            pullDistance.value -= 5;
+                            if (pullDistance.value < 0) pullDistance.value = 0;
+                        } else {
+                            clearInterval(reset);
+                        }
+                    }, 10);
+                };
 
                 // Fetch database and configurations
                 const fetchData = async () => {
@@ -567,6 +631,12 @@
                     topTags,
                     untaggedCount,
                     installPromptTriggered,
+                    scrollContainer,
+                    pullDistance,
+                    refreshing,
+                    onTouchStart,
+                    onTouchMove,
+                    onTouchEnd,
                     fetchData,
                     refreshData,
                     formatTag,
