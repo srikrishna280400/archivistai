@@ -6,6 +6,18 @@ import pandas as pd
 import requests
 from flask import Flask, jsonify, request, render_template, send_from_directory, redirect
 
+def load_env_file():
+    if os.path.exists(".env"):
+        with open(".env", "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ[key.strip()] = val.strip().strip('"').strip("'")
+
+# Load environment variables first
+load_env_file()
+
 app = Flask(__name__, template_folder="templates")
 
 DB_FILE = "articles_database.json"
@@ -182,6 +194,8 @@ def serve_android_manifest():
         with open(root_manifest_path, "r", encoding="utf-8") as f:
             manifest_data = json.load(f)
         manifest_data["start_url"] = "/android"
+        if "share_target" in manifest_data:
+            manifest_data["share_target"]["action"] = "/api/share?platform=android"
         return jsonify(manifest_data)
     except Exception:
         return send_from_directory("templates", "manifest.json", mimetype="application/json")
@@ -214,15 +228,12 @@ def update_tag(art_id):
     if not req_data or "tag" not in req_data:
         return jsonify({"error": "Missing tag field"}), 400
         
-    new_tag = req_data["tag"].strip().lower()
+    req_tag = req_data.get("tag")
+    new_tag = str(req_tag).strip().lower() if req_tag else ""
     if new_tag and new_tag not in TAGS:
         return jsonify({"error": f"Invalid tag. Must be one of {TAGS}"}), 400
         
-    if is_supabase_enabled():
-        if update_supabase_article(art_id, {"assigned_tag": new_tag if new_tag else None}):
-            return jsonify({"success": True, "message": f"Updated article {art_id} tag to '{new_tag}'"})
-        return jsonify({"error": "Failed to update tag in Supabase"}), 500
-
+    # Update local DB & Excel anyway to keep them synchronized
     articles = load_db()
     found = False
     for a in articles:
@@ -234,17 +245,17 @@ def update_tag(art_id):
     if not found:
         return jsonify({"error": "Article not found"}), 404
         
+    if is_supabase_enabled():
+        if not update_supabase_article(art_id, {"assigned_tag": new_tag if new_tag else None}):
+            return jsonify({"error": "Failed to update tag in Supabase"}), 500
+
     save_db(articles)
     return jsonify({"success": True, "message": f"Updated article {art_id} tag to '{new_tag}'"})
 
 @app.route("/api/articles/<int:art_id>/trash", methods=["POST"])
 def trash_article(art_id):
     deleted_time = datetime.utcnow().isoformat()
-    if is_supabase_enabled():
-        if update_supabase_article(art_id, {"deleted_at": deleted_time}):
-            return jsonify({"success": True, "message": f"Article {art_id} moved to Trash bin"})
-        return jsonify({"error": "Failed to move article to Trash in Supabase"}), 500
-
+    
     articles = load_db()
     found = False
     for a in articles:
@@ -254,16 +265,16 @@ def trash_article(art_id):
             break
     if not found:
         return jsonify({"error": "Article not found"}), 404
+
+    if is_supabase_enabled():
+        if not update_supabase_article(art_id, {"deleted_at": deleted_time}):
+            return jsonify({"error": "Failed to move article to Trash in Supabase"}), 500
+
     save_db(articles)
     return jsonify({"success": True, "message": f"Article {art_id} moved to Trash bin"})
 
 @app.route("/api/articles/<int:art_id>/restore", methods=["POST"])
 def restore_article(art_id):
-    if is_supabase_enabled():
-        if update_supabase_article(art_id, {"deleted_at": None}):
-            return jsonify({"success": True, "message": f"Article {art_id} restored from Trash bin"})
-        return jsonify({"error": "Failed to restore article in Supabase"}), 500
-
     articles = load_db()
     found = False
     for a in articles:
@@ -273,25 +284,33 @@ def restore_article(art_id):
             break
     if not found:
         return jsonify({"error": "Article not found"}), 404
+
+    if is_supabase_enabled():
+        if not update_supabase_article(art_id, {"deleted_at": None}):
+            return jsonify({"error": "Failed to restore article in Supabase"}), 500
+
     save_db(articles)
     return jsonify({"success": True, "message": f"Article {art_id} restored from Trash bin"})
 
 @app.route("/api/articles/<int:art_id>/delete", methods=["DELETE"])
 def delete_permanent(art_id):
-    if is_supabase_enabled():
-        if delete_supabase_article(art_id):
-            return jsonify({"success": True, "message": f"Article {art_id} permanently deleted"})
-        return jsonify({"error": "Failed to delete article in Supabase"}), 500
-
     articles = load_db()
     filtered = [a for a in articles if a["id"] != art_id]
     if len(filtered) == len(articles):
         return jsonify({"error": "Article not found"}), 404
+
+    if is_supabase_enabled():
+        if not delete_supabase_article(art_id):
+            return jsonify({"error": "Failed to delete article in Supabase"}), 500
+
     save_db(filtered)
     return jsonify({"success": True, "message": f"Article {art_id} permanently deleted"})
 
 @app.route("/api/share", methods=["GET", "POST"])
 def share_target():
+    platform = request.args.get("platform") or request.form.get("platform")
+    redirect_target = "/android" if platform == "android" else "/"
+    
     url = request.args.get("url") or request.form.get("url")
     title = request.args.get("title") or request.form.get("title")
     text = request.args.get("text") or request.form.get("text")
@@ -303,7 +322,7 @@ def share_target():
             url = urls[0]
             
     if not url:
-        return redirect("/?error=no_url")
+        return redirect(f"{redirect_target}?error=no_url")
         
     articles = load_db()
     next_id = max([a["id"] for a in articles]) + 1 if articles else 1
@@ -323,14 +342,19 @@ def share_target():
     
     if is_supabase_enabled():
         if insert_supabase_article(new_article):
-            return redirect("/")
-        return redirect("/?error=supabase_save_failed")
+            try:
+                articles.append(new_article)
+                save_db(articles)
+            except Exception:
+                pass
+            return redirect(redirect_target)
+        return redirect(f"{redirect_target}?error=supabase_save_failed")
         
     articles.append(new_article)
     save_db(articles)
     
     # Successfully added! Redirect to home page
-    return redirect("/")
+    return redirect(redirect_target)
 
 @app.route("/api/stats", methods=["GET"])
 def get_stats():
