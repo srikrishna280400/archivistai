@@ -288,7 +288,7 @@
                                         @change="updateArticleTag(article, $event.target.value)" 
                                         class="bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-[10px] rounded px-1.5 py-0.5 text-slate-400 focus:outline-none transition duration-150 cursor-pointer">
                                     <option value="" :selected="!article.assigned_tag">Untagged</option>
-                                    <option v-for="t in tags" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
+                                    <option v-for="t in sortedTags" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
                                 </select>
                                 
                                 <!-- Move to Trash button -->
@@ -444,6 +444,7 @@
                     if (!tag) return 'Untagged';
                     if (tag === 'hp') return 'Harry Potter';
                     if (tag === 'f1') return 'Formula 1';
+                    if (tag === 'startup vcs/sales') return 'Startup VCs / Sales';
                     
                     return tag.split('/')
                         .map(word => word.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))

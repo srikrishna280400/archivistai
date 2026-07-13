@@ -86,7 +86,7 @@ def load_db():
                 headers = get_supabase_headers()
                 # PostgREST Range header is 0-indexed and inclusive, e.g. Range: 0-999
                 headers["Range"] = f"{offset}-{offset+limit-1}"
-                url = f"{SUPABASE_URL}/rest/v1/articles?order=id.asc"
+                url = f"{SUPABASE_URL}/rest/v1/articles?order=id.desc"
                 
                 res = requests.get(url, headers=headers, timeout=10)
                 if res.status_code in [200, 206]:
@@ -117,6 +117,9 @@ def load_db():
         return []
     with open(DB_FILE, 'r', encoding='utf-8') as f:
         articles = json.load(f)
+    
+    # Sort descending by ID (latest to oldest)
+    articles.sort(key=lambda x: x.get("id", 0), reverse=True)
     
     # Auto-cleanup of trash older than 15 days
     cleaned_articles, changed = clean_expired_trash(articles)

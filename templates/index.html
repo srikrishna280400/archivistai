@@ -205,7 +205,7 @@
                                 class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium">
                             Untagged ({{ untaggedCount }})
                         </button>
-                        <button v-for="tag in tags" @click="selectedTag = tag" 
+                        <button v-for="tag in sortedTags" @click="selectedTag = tag" 
                                 :class="selectedTag === tag ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-800/80 hover:bg-slate-800 hover:text-white'" 
                                 class="px-3 py-1.5 rounded-full whitespace-nowrap transition duration-200 shrink-0 font-medium flex items-center space-x-1">
                             <span>{{ formatTag(tag) }}</span>
@@ -267,7 +267,7 @@
                                         @change="updateArticleTag(article, $event.target.value)" 
                                         class="bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-[10px] rounded px-1.5 py-0.5 text-slate-400 focus:outline-none transition duration-150 cursor-pointer">
                                     <option value="" :selected="!article.assigned_tag">Untagged</option>
-                                    <option v-for="t in tags" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
+                                    <option v-for="t in sortedTags" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
                                 </select>
                                 
                                 <!-- Move to Trash button -->
@@ -500,11 +500,17 @@
                     return articles.value.filter(a => !a.assigned_tag && !a.deleted_at).length;
                 });
 
+                // Sort tags alphabetically in ascending order
+                const sortedTags = computed(() => {
+                    return [...tags.value].sort((a, b) => a.localeCompare(b));
+                });
+
                 // Tag helpers
                 const formatTag = (tag) => {
                     if (!tag) return 'Untagged';
                     if (tag === 'hp') return 'Harry Potter';
                     if (tag === 'f1') return 'Formula 1';
+                    if (tag === 'startup vcs/sales') return 'Startup VCs / Sales';
                     
                     return tag.split('/')
                         .map(word => word.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '))
@@ -689,6 +695,7 @@
                 return {
                     articles,
                     tags,
+                    sortedTags,
                     stats,
                     loading,
                     searchQuery,

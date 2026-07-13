@@ -113,6 +113,9 @@ On mobile screens, split iframe layouts feel cluttered and small. Under this pha
 ### 3.5 Native Mobile Gestures: Pull-to-Sync & A-Z Sorted Tags
 * **Pull-to-Sync (Pull-to-Refresh)**: Embedded touch handlers (`touchstart`, `touchmove`, `touchend`) inside `/android`. Dragging down from the top reveals a gorgeous "Pull to Sync" header with mathematical drag resistance and a spin animation, releasing triggers a clean refresh.
 * **Alphabetical Categories**: Implemented Vue-based alphabetical sorting of tags (A to Z ascending order) in the categories scroll-view.
+* **Alphabetical Select Menus**: Upgraded both the desktop splits layout and mobile-optimized interfaces to display category options inside the quick-edit dropdown select menus in alphabetical (A to Z) ascending order.
+* **Latest-to-Oldest Inverted Sort**: Configured `load_db` in `app.py` to sort articles descending by ID (`id.desc`) across all categories, tabs, and sources so that the latest saved article always renders first.
+* **Premium Tag Formatting Override**: Hardcoded formatting rules to display `'startup vcs/sales'` as `'Startup VCs / Sales'` (specifically capitalizing 'VCs' correctly instead of 'Vcs') across all desktop and mobile interfaces.
 
 ### 3.6 PC Local Synchronizer Script (`sync_from_supabase.py`)
 Because Vercel cloud serverless instances are ephemeral and cannot write to your local filesystem:
