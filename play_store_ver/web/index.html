@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b66ff">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#030712">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+    <title>Archivist AI</title>
+
+    <!-- PWA Config -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="180x180" href="icons/icon-180.png">
+
+    <!-- Google Fonts - Outfit with font-display: swap -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-dS9cYrGdR6k9c5RhGHLmD8QrXJtC5h8p7J5X9n1X7Y3ZLwIeLd5Q7h1fH9j2hX9p6Q9j7z8J5Q8v9R0k7Y4fA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Tailwind CSS - JIT mode for performance -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind Config
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff', 100: '#e1e9ff', 200: '#c7d7ff', 300: '#9fbcff',
+                            400: '#6d95ff', 500: '#3b66ff', 600: '#2544eb', 700: '#1b30d6',
+                            800: '#1c28ac', 900: '#1c2688', 950: '#111553'
+                        },
+                    },
+                    animation: {
+                        'spin-slow': 'spin 2s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            },
+            plugins: [],
+        }
+    </script>
+
+    <!-- CSS Variables for 3 Themes -->
+    <style id="theme-styles">
+        :root {
+            /* Theme: Dark (default) */
+            --bg-primary: #030712;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1e293b;
+            --surface: #1e293b;
+            --surface-elevated: #172030;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border: #334155;
+            --accent: #3b66ff;
+            --accent-hover: #2544eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-tertiary: #e2e8f0;
+            --surface: #ffffff;
+            --surface-elevated: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border: #cbd5e1;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="amber"] {
+            --bg-primary: #191a23;
+            --bg-secondary: #2d2f3a;
+            --bg-tertiary: #3d404b;
+            --surface: #23262f;
+            --surface-elevated: #1a1e27;
+            --text-primary: #ffedd5;
+            --text-secondary: #fed7aa;
+            --text-tertiary: #fcd34d;
+            --border: #92400e;
+            --accent: #d97706;
+            --accent-hover: #ca8a04;
+            --success: #059669;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+
+        html, body, #app {
+            height: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Outfit', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+        }
+
+        /* Smooth transitions and animations */
+        * {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .transition-smooth {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+    </style>
+
+    <!-- Mobile-first responsive design -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="antialiased">
+    <div id="app" class="min-h-screen flex flex-col overflow-hidden bg-bg-primary text-text-primary">
+        <!-- Theme Switch Button (hidden in production via capacitor-plugin) -->
+        <div class="fixed top-4 right-4 z-50 hidden md:flex items-center gap-2">
+            <button id="theme-toggle" class="card px-3 py-2 rounded-xl transition-all duration-300 text-xs font-medium"
+                    title="Switch theme">
+                <i class="fa-solid fa-palette mr-1"></i>
+                <span id="theme-label">Dark</span>
+            </button>
+        </div>
+
+        <!-- Content will be injected by Vue.js -->
+        <div id="vue-app" class="flex-1 overflow-y-auto" v-cloak>
+            <div class="min-h-screen bg-bg-primary">
+                <!-- Top Navbar -->
+                <header class="sticky top-0 z-10 card h-16 border-b border-border flex items-center justify-between px-4 shadow-sm">
+                    <div class="flex items-center space-x-2">
+                        <div class="bg-accent/20 text-accent border border-accent/30 p-2 rounded-xl shadow-md">
+                            <i class="fa-solid fa-box-archive text-base"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-text-primary via-accent to-accent/70 bg-clip-text text-transparent">
+                                Archivist AI
+                            </h1>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Banner -->
+                    <div class="flex items-center space-x-1.5 text-xs">
+                        <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border" title="Total Articles">
+                            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+                            <span class="font-bold text-white">{{ stats.total_articles || 0 }}</span>
+                        </div>
+                        <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border text-success" title="Crawled">
+                            <span class="w-1.5 h-1.5 rounded-full"></span>
+                            <span class="font-bold">{{ stats.crawl_counts?.success || 0 }}</span>
+                        </div>
+                        <div class="relative">
+                            <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border text-danger" title="Trash">
+                                <span class="w-1.5 h-1.5 rounded-full"></span>
+                                <span class="font-bold">{{ stats.total_trash || 0 }}</span>
+                            </div>
+                        </div>
+                        <button @click="refreshData" class="text-text-tertiary hover:text-accent transition-colors duration-200 p-1.5 rounded-lg glass border border-border"
+                                :title="loading ? 'Loading...' : 'Refresh'">
+                            <i class="fa-solid fa-rotate" :class="{'animate-spin': loading}"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Main Content -->
+                <div class="flex flex-1 overflow-hidden">
+                    <!-- Library Panel -->
+                    <main class="flex-1 flex flex-col h-full bg-bg-secondary">
+                        <!-- Search & Filters -->
+                        <div class="p-4 border-b border-border space-y-3 shrink-0">
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary"></i>
+                                <input type="text" v-model="searchQuery"
+                                       placeholder="Search articles..."
+                                       class="w-full pl-10 pr-4 py-2.5 bg-surface border border-border rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm placeholder-text-tertiary transition-all duration-200">
+                                <button v-if="searchQuery" @click="searchQuery = ''"
+                                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary transition-colors">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            <!-- Source Filter Tabs -->
+                            <div class="grid grid-cols-5 gap-1 p-1 bg-bg-tertiary/50 rounded-lg border border-border/50 text-[10px] font-semibold text-text-tertiary">
+                                <button @click="sourceFilter = 'all'"
+                                        :class="sourceFilter === 'all' ? 'bg-accent text-white shadow' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
+                                        class="py-1.5 rounded-md text-center transition-all duration-200">
+                                    All
+                                </button>
+                                <button @click="sourceFilter = 'pocket'"
+                                        :class="sourceFilter === 'pocket' ? 'bg-pink-600/20 border border-pink-500/30 text-pink-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
+                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa-brands fa-get-pocket mr-0.5"></i>
+                                    <span class="hidden xs:inline">Pocket</span>
+                                </button>
+                                <button @click="sourceFilter = 'instapaper'"
+                                        :class="sourceFilter === 'instapaper' ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
+                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-bookmark mr-0.5"></i>
+                                    <span class="hidden xs:inline">Insta</span>
+                                </button>
+                                <button @click="sourceFilter = 'shared'"
+                                        :class="sourceFilter === 'shared' ? 'bg-emerald-600/20 border border-emerald-500/30 text-emerald-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
+                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-share-nodes mr-0.5"></i>
+                                    <span class="hidden xs:inline">Shared</span>
+                                </button>
+                                <button @click="sourceFilter = 'trash'"
+                                        :class="sourceFilter === 'trash' ? 'bg-rose-600/20 border border-rose-500/30 text-rose-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
+                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-trash-can mr-0.5"></i>
+                                    <span class="hidden xs:inline">Trash</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Articles List -->
+                        <div class="flex-1 overflow-y-auto divide-y divide-border/50 p-3 space-y-2">
+                            <!-- Loading State -->
+                            <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-text-tertiary space-y-3">
+                                <i class="fa-solid fa-spinner fa-spin text-2xl text-accent"></i>
+                                <p class="text-sm">Loading Library...</p>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else-if="filteredArticles.length === 0" class="flex flex-col items-center justify-center py-20 text-text-tertiary space-y-3">
+                                <i class="fa-regular fa-folder-open text-2xl"></i>
+                                <p class="text-sm">No articles match your filters.</p>
+                            </div>
+
+                            <!-- Articles -->
+                            <div v-else>
+                                <div v-for="article in paginatedArticles" :key="article.id"
+                                     @click="openArticle(article)"
+                                     class="group card p-3.5 rounded-xl border border-border/40 hover:shadow-md hover:border-border/80 active:scale-[0.98] transition-all duration-200 cursor-pointer">
+
+                                    <div class="flex items-start justify-between space-x-2">
+                                        <h3 class="font-medium text-sm text-text-primary group-hover:text-white line-clamp-2 transition-colors duration-200 flex-1 leading-snug">
+                                            {{ getHeadline(article) }}
+                                        </h3>
+
+                                        <span class="shrink-0 text-xs text-text-tertiary">
+                                            <i v-if="article.original_source === 'pocket'" class="fa-brands fa-get-pocket text-pink-400" title="Pocket"></i>
+                                            <i v-else-if="article.original_source === 'instapaper'" class="fa-solid fa-bookmark text-amber-400" title="Instapaper"></i>
+                                            <i v-else class="fa-solid fa-share-nodes text-emerald-400" title="Shared"></i>
+                                        </span>
+                                    </div>
+
+                                    <p class="text-[11px] text-text-tertiary truncate mt-1.5 font-mono">
+                                        {{ article.url }}
+                                    </p>
+
+                                    <div class="flex items-center justify-between mt-3">
+                                        <span v-if="article.assigned_tag"
+                                              :class="['px-2.5 py-0.5 text-[11px] rounded-full font-semibold border', getTagClass(article.assigned_tag)]">
+                                            {{ formatTag(article.assigned_tag) }}
+                                        </span>
+                                        <span v-else class="px-2.5 py-0.5 text-[11px] rounded-full font-semibold bg-bg-tertiary text-text-tertiary border border-border/30">
+                                            Untagged
+                                        </span>
+
+                                        <div class="flex items-center space-x-2 z-10" @click.stop>
+                                            <select v-if="!article.deleted_at"
+                                                    @change="updateTag(article, $event.target.value)"
+                                                    class="bg-bg-tertiary hover:bg-surface border border-border text-[10px] rounded px-1.5 py-0.5 text-text-tertiary focus:outline-none transition-all duration-150 cursor-pointer">
+                                                <option value="" :selected="!article.assigned_tag">Untagged</option>
+                                                <option v-for="tag in sortedTags" :value="tag" :selected="article.assigned_tag === tag">{{ formatTag(tag) }}</option>
+                                            </select>
+
+                                            <button v-if="!article.deleted_at"
+                                                    @click="trashArticle(article)"
+                                                    class="text-text-tertiary hover:text-danger p-1 rounded hover:bg-bg-tertiary transition-all duration-200"
+                                                    title="Move to Trash">
+                                                <i class="fa-regular fa-trash-can"></i>
+                                            </button>
+
+                                            <div v-else class="flex items-center space-x-1">
+                                                <button @click="restoreArticle(article)"
+                                                        class="text-text-tertiary hover:text-success p-1.5 rounded hover:bg-bg-tertiary transition-all duration-200 text-xs flex items-center"
+                                                        title="Restore">
+                                                    <i class="fa-solid fa-rotate-left"></i>
+                                                </button>
+                                                <button @click="deleteArticlePermanently(article)"
+                                                        class="text-text-tertiary hover:text-danger p-1.5 rounded hover:bg-bg-tertiary transition-all duration-200 text-xs"
+                                                        title="Delete Permanently">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </div>
+
+                                            <span class="text-[10px] text-text-tertiary font-mono">
+                                                #{{ article.id }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Load More -->
+                        <div v-if="filteredArticles.length > pageLimit" class="pt-4 pb-2 text-center">
+                            <button @click="pageLimit += 50"
+                                    class="card px-5 py-2 rounded-xl text-xs font-semibold border border-border text-accent hover:bg-bg-tertiary transition-all duration-200">
+                                Load More ({{ paginatedArticles.length }} of {{ filteredArticles.length }})
+                            </button>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand colors matching the web app -->
+    <color name="brand_50">#f0f4ff</color>
+    <color name="brand_100">#e1e9ff</color>
+    <color name="brand_200">#c7d7ff</color>
+    <color name="brand_300">#9fbcff</color>
+    <color name="brand_400">#6d95ff</color>
+    <color name="brand_500">#3b66ff</color>
+    <color name="brand_600">#2544eb</color>
+    <color name="brand_700">#1b30d6</color>
+    <color name="brand_800">#1c28ac</color>
+    <color name="brand_900">#1c2688</color>
+    <color name="brand_950">#111553</color>
+
+    <!-- Theme: Dark (default) -->
+    <color name="dark_bg_primary">#030712</color>
+    <color name="dark_bg_secondary">#111827</color>
+    <color name="dark_bg_tertiary">#1e293b</color>
+    <color name="dark_surface">#1e293b</color>
+    <color name="dark_surface_elevated">#172030</color>
+    <color name="dark_text_primary">#f8fafc</color>
+    <color name="dark_text_secondary">#cbd5e1</color>
+    <color name="dark_text_tertiary">#94a3b8</color>
+    <color name="dark_border">#334155</color>
+
+    <!-- Theme: Light -->
+    <color name="light_bg_primary">#f8fafc</color>
+    <color name="light_bg_secondary">#f1f5f9</color>
+    <color name="light_bg_tertiary">#e2e8f0</color>
+    <color name="light_surface">#ffffff</color>
+    <color name="light_surface_elevated">#f8fafc</color>
+    <color name="light_text_primary">#0f172a</color>
+    <color name="light_text_secondary">#475569</color>
+    <color name="light_text_tertiary">#64748b</color>
+    <color name="light_border">#cbd5e1</color>
+
+    <!-- Theme: Amber -->
+    <color name="amber_bg_primary">#191a23</color>
+    <color name="amber_bg_secondary">#2d2f3a</color>
+    <color name="amber_bg_tertiary">#3d404b</color>
+    <color name="amber_surface">#23262f</color>
+    <color name="amber_surface_elevated">#1a1e27</color>
+    <color name="amber_text_primary">#ffedd5</color>
+    <color name="amber_text_secondary">#fed7aa</color>
+    <color name="amber_text_tertiary">#fcd34d</color>
+    <color name="amber_border">#92400e</color>
+
+    <!-- Accent -->
+    <color name="accent">#3b66ff</color>
+    <color name="accent_hover">#2544eb</color>
+    <color name="success">#10b981</color>
+    <color name="warning">#f59e0b</color>
+    <color name="danger">#ef4444</color>
+</resources>

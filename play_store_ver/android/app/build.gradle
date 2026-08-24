@@ -1,0 +1,90 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    // Uncomment to enable Google Play services integration:
+    // id 'com.google.gms.google-services'
+}
+
+android {
+    namespace = 'com.archivistai.playstore'
+    compileSdkVersion 35
+
+    defaultConfig {
+        applicationId "com.archivistai.playstore"
+        minSdkVersion 24
+        targetSdkVersion 35
+        versionCode 1
+        versionName "1.0.0"
+
+        // Enable vector drawables
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    // Capacitor web assets directory
+    sourceSets {
+        main {
+            // The Capacitor web assets live in ../web (relative to this file)
+            res.srcDirs += ['../web']
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    // Enable Android App Bundle for Play Store
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.0"
+    implementation 'androidx.core:core:1.13.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // Capacitor
+    implementation 'com.getcapacitor:capacitor-android:6.0.4'
+    implementation 'com.getcapacitor:capacitor-android-plugin-splash-screen:6.0.4'
+
+    // Google Play Services (Ads + Billing)
+    implementation 'com.google.android.gms:play-services-ads:23.3.0'
+    implementation 'com.google.android.gms:play-services-billing:6.1.0'
+
+    // Firebase for analytics and crashlytics (optional)
+    // implementation 'com.google.firebase:firebase-bom:33.2.0'
+    // implementation 'com.google.firebase:firebase-analytics'
+    // implementation 'com.google.firebase:firebase-crashlytics'
+
+    // Material3 theming
+    implementation 'androidx.material3:material3:1.3.0'
+}
+
+// Uncomment if using Google Services
+// apply plugin: 'com.google.gms.google-services'
