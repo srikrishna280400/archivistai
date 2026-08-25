@@ -4,365 +4,565 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#3b66ff">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#030712">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
-    <title>Archivist AI</title>
+    <title>Archivist AI - Play Store</title>
 
-    <!-- PWA Config -->
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-    <link rel="icon" type="image/png" sizes="180x180" href="icons/icon-180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
-    <!-- Google Fonts - Outfit with font-display: swap -->
+    <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-dS9cYrGdR6k9c5RhGHLmD8QrXJtC5h8p7J5X9n1X7Y3ZLwIeLd5Q7h1fH9j2hX9p6Q9j7z8J5Q8v9R0k7Y4fA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Tailwind CSS - JIT mode for performance -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Tailwind Config
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
-                    colors: {
-                        brand: {
-                            50: '#f0f4ff', 100: '#e1e9ff', 200: '#c7d7ff', 300: '#9fbcff',
-                            400: '#6d95ff', 500: '#3b66ff', 600: '#2544eb', 700: '#1b30d6',
-                            800: '#1c28ac', 900: '#1c2688', 950: '#111553'
-                        },
-                    },
-                    animation: {
-                        'spin-slow': 'spin 2s linear infinite',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    }
-                }
-            },
-            plugins: [],
-        }
-    </script>
+    <!-- Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 
-    <!-- CSS Variables for 3 Themes -->
-    <style id="theme-styles">
+    <style>
         :root {
-            /* Theme: Dark (default) */
             --bg-primary: #030712;
             --bg-secondary: #111827;
             --bg-tertiary: #1e293b;
-            --surface: #1e293b;
-            --surface-elevated: #172030;
+            --surface: rgba(30, 41, 59, 0.5);
+            --surface-solid: #1e293b;
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
             --text-tertiary: #94a3b8;
-            --border: #334155;
+            --border: rgba(148, 163, 184, 0.15);
+            --border-solid: #334155;
             --accent: #3b66ff;
             --accent-hover: #2544eb;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
         }
-
         [data-theme="light"] {
             --bg-primary: #f8fafc;
             --bg-secondary: #f1f5f9;
             --bg-tertiary: #e2e8f0;
-            --surface: #ffffff;
-            --surface-elevated: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.7);
+            --surface-solid: #ffffff;
             --text-primary: #0f172a;
             --text-secondary: #475569;
             --text-tertiary: #64748b;
-            --border: #cbd5e1;
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --success: #059669;
-            --warning: #d97706;
-            --danger: #dc2626;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: rgba(100, 116, 139, 0.2);
+            --border-solid: #cbd5e1;
         }
-
         [data-theme="amber"] {
-            --bg-primary: #191a23;
-            --bg-secondary: #2d2f3a;
-            --bg-tertiary: #3d404b;
-            --surface: #23262f;
-            --surface-elevated: #1a1e27;
-            --text-primary: #ffedd5;
-            --text-secondary: #fed7aa;
+            --bg-primary: #1f1611;
+            --bg-secondary: #2d1f15;
+            --bg-tertiary: #3d2f25;
+            --surface: rgba(45, 31, 21, 0.7);
+            --surface-solid: #2d1f15;
+            --text-primary: #fef3c7;
+            --text-secondary: #fde68a;
             --text-tertiary: #fcd34d;
-            --border: #92400e;
+            --border: rgba(180, 83, 9, 0.3);
+            --border-solid: #92400e;
             --accent: #d97706;
-            --accent-hover: #ca8a04;
-            --success: #059669;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-            --shadow-elevated: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --accent-hover: #b45309;
         }
-
-        html, body, #app {
-            height: 100%;
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
             background: var(--bg-primary);
             color: var(--text-primary);
-            font-family: 'Outfit', system-ui, sans-serif;
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow: hidden;
+            min-height: 100vh;
         }
-
-        .card {
+        body {
+            background: radial-gradient(ellipse at top, var(--bg-secondary), var(--bg-primary) 70%);
+        }
+        .app { max-width: 1200px; margin: 0 auto; }
+        .topbar {
+            position: sticky; top: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px;
+            box-shadow: 0 4px 12px rgba(59, 102, 255, 0.3);
+        }
+        .logo-text {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats { display: flex; align-items: center; gap: 8px; }
+        .stat {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 12px; font-weight: 600;
+        }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-indigo { background: var(--accent); }
+        .dot-emerald { background: var(--success); }
+        .dot-rose { background: var(--danger); }
+        .icon-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+        .controls {
+            padding: 16px 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+        .search-wrap { position: relative; }
+        .search-wrap i {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: var(--text-tertiary);
+        }
+        .search {
+            width: 100%; padding: 10px 14px 10px 42px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,102,255,0.15); }
+        .search::placeholder { color: var(--text-tertiary); }
+        .filter-tabs {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 4px; padding: 4px;
+            background: var(--bg-tertiary); border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 12px; font-weight: 600;
+        }
+        .filter-tab {
+            padding: 8px 4px; border-radius: 8px;
+            background: transparent; border: none;
+            color: var(--text-tertiary); cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .filter-tab:hover { color: var(--text-primary); }
+        .filter-tab.active {
+            background: var(--surface-solid);
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .tag-scroll {
+            display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+        }
+        .tag-scroll::-webkit-scrollbar { height: 0; }
+        .tag-pill {
+            padding: 6px 12px; border-radius: 999px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px; font-weight: 500;
+            white-space: nowrap; cursor: pointer;
+            transition: all 0.2s; flex-shrink: 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tag-pill:hover { background: var(--surface-solid); color: var(--text-primary); }
+        .tag-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .tag-pill .count {
+            font-size: 10px; padding: 1px 6px;
+            background: rgba(0,0,0,0.25); border-radius: 999px;
+            font-weight: 700;
+        }
+        .list { padding: 16px 20px; }
+        .article {
+            padding: 16px; margin-bottom: 10px;
             background: var(--surface);
             border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
         }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
+        .article:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .article-title {
+            font-size: 15px; font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 6px 0; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-
-        /* Smooth transitions and animations */
-        * {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .article-url {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px; color: var(--text-tertiary);
+            margin: 0 0 12px 0;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-
-        .transition-smooth {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .article-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px;
         }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+        .tag-badge {
+            display: inline-block;
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 11px; font-weight: 600;
+            border: 1px solid;
         }
-        ::-webkit-scrollbar-track {
+        .tag-badge.untagged { background: var(--bg-tertiary); color: var(--text-tertiary); border-color: var(--border); }
+        .actions { display: flex; align-items: center; gap: 6px; }
+        .select-tag, .trash-btn, .restore-btn, .delete-btn {
             background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            font-size: 11px; font-family: inherit;
+            padding: 4px 8px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
         }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
+        .select-tag:hover { color: var(--text-primary); }
+        .trash-btn:hover { color: var(--danger); border-color: var(--danger); }
+        .restore-btn:hover { color: var(--success); border-color: var(--success); }
+        .delete-btn:hover { color: var(--danger); border-color: var(--danger); }
+        .id-tag {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 10px; color: var(--text-tertiary);
+            padding: 2px 6px; background: var(--bg-tertiary);
+            border-radius: 6px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-hover);
+        .source-icon { font-size: 14px; }
+        .source-pink { color: #ec4899; }
+        .source-amber { color: #f59e0b; }
+        .source-emerald { color: #10b981; }
+        .loading, .empty {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-tertiary);
         }
+        .loading i { font-size: 32px; color: var(--accent); }
+        .empty i { font-size: 32px; color: var(--text-tertiary); }
+        .load-more {
+            display: block; margin: 20px auto;
+            padding: 10px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--accent); font-weight: 600;
+            font-size: 12px; font-family: inherit;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .load-more:hover { background: var(--surface-solid); }
+        .theme-btn {
+            padding: 6px 12px; border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+            font-family: inherit;
+        }
+        .theme-btn:hover { border-color: var(--accent); }
+        /* Hide tag-badges colors but use them inline */
+        .tag-psychology { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
+        .tag-music { background: rgba(236, 72, 153, 0.15); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); }
+        .tag-geopoltics-history { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+        .tag-inspiration { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3); }
+        .tag-tennis { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        .tag-football { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        .tag-cricket { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+        .tag-formula-1 { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .tag-badminton { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+        .tag-cinema { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
+        .tag-indian-politics { background: rgba(217, 70, 239, 0.15); color: #e879f9; border-color: rgba(217, 70, 239, 0.3); }
+        .tag-indian-history { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+        .tag-tech-science { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.3); }
+        .tag-interesting { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border-color: rgba(107, 114, 128, 0.3); }
+        .tag-literature { background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3); }
+        .tag-hp { background: rgba(192, 132, 252, 0.15); color: #c084fc; border-color: rgba(192, 132, 252, 0.3); }
+        .tag-startup-stories { background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3); }
+        .tag-financial-markets { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        .tag-misanthropy { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .tag-startup-vcs-sales { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+        .tag-health { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border-color: rgba(20, 184, 166, 0.3); }
     </style>
-
-    <!-- Mobile-first responsive design -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
-<body class="antialiased">
-    <div id="app" class="min-h-screen flex flex-col overflow-hidden bg-bg-primary text-text-primary">
-        <!-- Theme Switch Button (hidden in production via capacitor-plugin) -->
-        <div class="fixed top-4 right-4 z-50 hidden md:flex items-center gap-2">
-            <button id="theme-toggle" class="card px-3 py-2 rounded-xl transition-all duration-300 text-xs font-medium"
-                    title="Switch theme">
-                <i class="fa-solid fa-palette mr-1"></i>
-                <span id="theme-label">Dark</span>
-            </button>
+<body>
+    <div id="app" class="app">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-box-archive"></i></div>
+                <div class="logo-text">Archivist AI</div>
+            </div>
+            <div class="stats">
+                <div class="stat" title="Total Articles">
+                    <span class="dot dot-indigo"></span>
+                    <span>{{ stats.total_articles || 0 }}</span>
+                </div>
+                <div class="stat" title="Crawled">
+                    <span class="dot dot-emerald"></span>
+                    <span>{{ stats.crawl_counts?.success || 0 }}</span>
+                </div>
+                <div class="stat" title="Trash">
+                    <span class="dot dot-rose"></span>
+                    <span>{{ stats.total_trash || 0 }}</span>
+                </div>
+                <button class="icon-btn" @click="refreshData" title="Refresh">
+                    <i class="fa-solid fa-rotate" :class="{'fa-spin': loading}"></i>
+                </button>
+                <button class="theme-btn" @click="cycleTheme" title="Switch theme">
+                    <i class="fa-solid fa-palette"></i>
+                    <span>{{ themeLabel }}</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search" v-model="searchQuery" placeholder="Search articles by title, URL, tag..." />
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-tab" :class="{active: sourceFilter==='all'}" @click="sourceFilter='all'">All</button>
+                <button class="filter-tab" :class="{active: sourceFilter==='pocket'}" @click="sourceFilter='pocket'">
+                    <i class="fa-brands fa-get-pocket source-pink"></i> <span style="display:none">Pocket</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='instapaper'}" @click="sourceFilter='instapaper'">
+                    <i class="fa-solid fa-bookmark source-amber"></i> <span style="display:none">Insta</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='shared'}" @click="sourceFilter='shared'">
+                    <i class="fa-solid fa-share-nodes source-emerald"></i> <span style="display:none">Shared</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='trash'}" @click="sourceFilter='trash'">
+                    <i class="fa-solid fa-trash-can"></i> <span style="display:none">Trash</span>
+                </button>
+            </div>
+            <div class="tag-scroll">
+                <button class="tag-pill" :class="{active: selectedTag===''}" @click="selectedTag=''">
+                    All <span class="count">{{ stats.total_articles || 0 }}</span>
+                </button>
+                <button class="tag-pill" :class="{active: selectedTag==='untagged'}" @click="selectedTag='untagged'">
+                    Untagged <span class="count">{{ untaggedCount }}</span>
+                </button>
+                <button v-for="tag in sortedTags" :key="tag"
+                        class="tag-pill" :class="{active: selectedTag===tag}"
+                        @click="selectedTag = tag">
+                    {{ formatTag(tag) }}
+                    <span class="count">{{ getTagCount(tag) }}</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Content will be injected by Vue.js -->
-        <div id="vue-app" class="flex-1 overflow-y-auto" v-cloak>
-            <div class="min-h-screen bg-bg-primary">
-                <!-- Top Navbar -->
-                <header class="sticky top-0 z-10 card h-16 border-b border-border flex items-center justify-between px-4 shadow-sm">
-                    <div class="flex items-center space-x-2">
-                        <div class="bg-accent/20 text-accent border border-accent/30 p-2 rounded-xl shadow-md">
-                            <i class="fa-solid fa-box-archive text-base"></i>
-                        </div>
-                        <div>
-                            <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-text-primary via-accent to-accent/70 bg-clip-text text-transparent">
-                                Archivist AI
-                            </h1>
-                        </div>
-                    </div>
-
-                    <!-- Quick Stats Banner -->
-                    <div class="flex items-center space-x-1.5 text-xs">
-                        <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border" title="Total Articles">
-                            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
-                            <span class="font-bold text-white">{{ stats.total_articles || 0 }}</span>
-                        </div>
-                        <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border text-success" title="Crawled">
-                            <span class="w-1.5 h-1.5 rounded-full"></span>
-                            <span class="font-bold">{{ stats.crawl_counts?.success || 0 }}</span>
-                        </div>
-                        <div class="relative">
-                            <div class="flex items-center space-x-1 glass px-2 py-1.5 rounded-lg border border-border text-danger" title="Trash">
-                                <span class="w-1.5 h-1.5 rounded-full"></span>
-                                <span class="font-bold">{{ stats.total_trash || 0 }}</span>
-                            </div>
-                        </div>
-                        <button @click="refreshData" class="text-text-tertiary hover:text-accent transition-colors duration-200 p-1.5 rounded-lg glass border border-border"
-                                :title="loading ? 'Loading...' : 'Refresh'">
-                            <i class="fa-solid fa-rotate" :class="{'animate-spin': loading}"></i>
-                        </button>
-                    </div>
-                </header>
-
-                <!-- Main Content -->
-                <div class="flex flex-1 overflow-hidden">
-                    <!-- Library Panel -->
-                    <main class="flex-1 flex flex-col h-full bg-bg-secondary">
-                        <!-- Search & Filters -->
-                        <div class="p-4 border-b border-border space-y-3 shrink-0">
-                            <div class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary"></i>
-                                <input type="text" v-model="searchQuery"
-                                       placeholder="Search articles..."
-                                       class="w-full pl-10 pr-4 py-2.5 bg-surface border border-border rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm placeholder-text-tertiary transition-all duration-200">
-                                <button v-if="searchQuery" @click="searchQuery = ''"
-                                        class="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary transition-colors">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-
-                            <!-- Source Filter Tabs -->
-                            <div class="grid grid-cols-5 gap-1 p-1 bg-bg-tertiary/50 rounded-lg border border-border/50 text-[10px] font-semibold text-text-tertiary">
-                                <button @click="sourceFilter = 'all'"
-                                        :class="sourceFilter === 'all' ? 'bg-accent text-white shadow' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
-                                        class="py-1.5 rounded-md text-center transition-all duration-200">
-                                    All
-                                </button>
-                                <button @click="sourceFilter = 'pocket'"
-                                        :class="sourceFilter === 'pocket' ? 'bg-pink-600/20 border border-pink-500/30 text-pink-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
-                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
-                                    <i class="fa-brands fa-get-pocket mr-0.5"></i>
-                                    <span class="hidden xs:inline">Pocket</span>
-                                </button>
-                                <button @click="sourceFilter = 'instapaper'"
-                                        :class="sourceFilter === 'instapaper' ? 'bg-amber-600/20 border border-amber-500/30 text-amber-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
-                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
-                                    <i class="fa-solid fa-bookmark mr-0.5"></i>
-                                    <span class="hidden xs:inline">Insta</span>
-                                </button>
-                                <button @click="sourceFilter = 'shared'"
-                                        :class="sourceFilter === 'shared' ? 'bg-emerald-600/20 border border-emerald-500/30 text-emerald-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
-                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
-                                    <i class="fa-solid fa-share-nodes mr-0.5"></i>
-                                    <span class="hidden xs:inline">Shared</span>
-                                </button>
-                                <button @click="sourceFilter = 'trash'"
-                                        :class="sourceFilter === 'trash' ? 'bg-rose-600/20 border border-rose-500/30 text-rose-400' : 'bg-surface text-text-tertiary hover:bg-bg-tertiary'"
-                                        class="py-1.5 rounded-md text-center transition-all duration-200 flex items-center justify-center">
-                                    <i class="fa-solid fa-trash-can mr-0.5"></i>
-                                    <span class="hidden xs:inline">Trash</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Articles List -->
-                        <div class="flex-1 overflow-y-auto divide-y divide-border/50 p-3 space-y-2">
-                            <!-- Loading State -->
-                            <div v-if="loading" class="flex flex-col items-center justify-center py-20 text-text-tertiary space-y-3">
-                                <i class="fa-solid fa-spinner fa-spin text-2xl text-accent"></i>
-                                <p class="text-sm">Loading Library...</p>
-                            </div>
-
-                            <!-- Empty State -->
-                            <div v-else-if="filteredArticles.length === 0" class="flex flex-col items-center justify-center py-20 text-text-tertiary space-y-3">
-                                <i class="fa-regular fa-folder-open text-2xl"></i>
-                                <p class="text-sm">No articles match your filters.</p>
-                            </div>
-
-                            <!-- Articles -->
-                            <div v-else>
-                                <div v-for="article in paginatedArticles" :key="article.id"
-                                     @click="openArticle(article)"
-                                     class="group card p-3.5 rounded-xl border border-border/40 hover:shadow-md hover:border-border/80 active:scale-[0.98] transition-all duration-200 cursor-pointer">
-
-                                    <div class="flex items-start justify-between space-x-2">
-                                        <h3 class="font-medium text-sm text-text-primary group-hover:text-white line-clamp-2 transition-colors duration-200 flex-1 leading-snug">
-                                            {{ getHeadline(article) }}
-                                        </h3>
-
-                                        <span class="shrink-0 text-xs text-text-tertiary">
-                                            <i v-if="article.original_source === 'pocket'" class="fa-brands fa-get-pocket text-pink-400" title="Pocket"></i>
-                                            <i v-else-if="article.original_source === 'instapaper'" class="fa-solid fa-bookmark text-amber-400" title="Instapaper"></i>
-                                            <i v-else class="fa-solid fa-share-nodes text-emerald-400" title="Shared"></i>
-                                        </span>
-                                    </div>
-
-                                    <p class="text-[11px] text-text-tertiary truncate mt-1.5 font-mono">
-                                        {{ article.url }}
-                                    </p>
-
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span v-if="article.assigned_tag"
-                                              :class="['px-2.5 py-0.5 text-[11px] rounded-full font-semibold border', getTagClass(article.assigned_tag)]">
-                                            {{ formatTag(article.assigned_tag) }}
-                                        </span>
-                                        <span v-else class="px-2.5 py-0.5 text-[11px] rounded-full font-semibold bg-bg-tertiary text-text-tertiary border border-border/30">
-                                            Untagged
-                                        </span>
-
-                                        <div class="flex items-center space-x-2 z-10" @click.stop>
-                                            <select v-if="!article.deleted_at"
-                                                    @change="updateTag(article, $event.target.value)"
-                                                    class="bg-bg-tertiary hover:bg-surface border border-border text-[10px] rounded px-1.5 py-0.5 text-text-tertiary focus:outline-none transition-all duration-150 cursor-pointer">
-                                                <option value="" :selected="!article.assigned_tag">Untagged</option>
-                                                <option v-for="tag in sortedTags" :value="tag" :selected="article.assigned_tag === tag">{{ formatTag(tag) }}</option>
-                                            </select>
-
-                                            <button v-if="!article.deleted_at"
-                                                    @click="trashArticle(article)"
-                                                    class="text-text-tertiary hover:text-danger p-1 rounded hover:bg-bg-tertiary transition-all duration-200"
-                                                    title="Move to Trash">
-                                                <i class="fa-regular fa-trash-can"></i>
-                                            </button>
-
-                                            <div v-else class="flex items-center space-x-1">
-                                                <button @click="restoreArticle(article)"
-                                                        class="text-text-tertiary hover:text-success p-1.5 rounded hover:bg-bg-tertiary transition-all duration-200 text-xs flex items-center"
-                                                        title="Restore">
-                                                    <i class="fa-solid fa-rotate-left"></i>
-                                                </button>
-                                                <button @click="deleteArticlePermanently(article)"
-                                                        class="text-text-tertiary hover:text-danger p-1.5 rounded hover:bg-bg-tertiary transition-all duration-200 text-xs"
-                                                        title="Delete Permanently">
-                                                    <i class="fa-solid fa-trash-can"></i>
-                                                </button>
-                                            </div>
-
-                                            <span class="text-[10px] text-text-tertiary font-mono">
-                                                #{{ article.id }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Load More -->
-                        <div v-if="filteredArticles.length > pageLimit" class="pt-4 pb-2 text-center">
-                            <button @click="pageLimit += 50"
-                                    class="card px-5 py-2 rounded-xl text-xs font-semibold border border-border text-accent hover:bg-bg-tertiary transition-all duration-200">
-                                Load More ({{ paginatedArticles.length }} of {{ filteredArticles.length }})
-                            </button>
-                        </div>
-                    </main>
-                </div>
+        <!-- Articles List -->
+        <div class="list">
+            <div v-if="loading" class="loading">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading your library...</p>
             </div>
+            <div v-else-if="filteredArticles.length === 0" class="empty">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No articles match your filters.</p>
+            </div>
+            <template v-else>
+                <div v-for="article in paginatedArticles" :key="article.id" class="article" @click="openArticle(article)">
+                    <h3 class="article-title">{{ getHeadline(article) }}</h3>
+                    <p class="article-url">{{ article.url }}</p>
+                    <div class="article-row">
+                        <div>
+                            <span v-if="article.assigned_tag" class="tag-badge" :class="getTagClass(article.assigned_tag)">
+                                {{ formatTag(article.assigned_tag) }}
+                            </span>
+                            <span v-else class="tag-badge untagged">Untagged</span>
+                            <span v-if="article.original_source==='pocket'" class="source-icon source-pink" style="margin-left:8px"><i class="fa-brands fa-get-pocket"></i></span>
+                            <span v-else-if="article.original_source==='instapaper'" class="source-icon source-amber" style="margin-left:8px"><i class="fa-solid fa-bookmark"></i></span>
+                            <span v-else-if="article.original_source==='shared'" class="source-icon source-emerald" style="margin-left:8px"><i class="fa-solid fa-share-nodes"></i></span>
+                        </div>
+                        <div class="actions" @click.stop>
+                            <select v-if="!article.deleted_at" class="select-tag" @change="updateTag(article, $event.target.value)">
+                                <option value="" :selected="!article.assigned_tag">Untagged</option>
+                                <option v-for="t in sortedTags" :key="t" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
+                            </select>
+                            <button v-if="!article.deleted_at" class="trash-btn" @click="trashArticle(article)" title="Move to Trash">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                            <template v-else>
+                                <button class="restore-btn" @click="restoreArticle(article)" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>
+                                <button class="delete-btn" @click="deleteArticlePermanently(article)" title="Delete permanently"><i class="fa-solid fa-trash-can"></i></button>
+                            </template>
+                            <span class="id-tag">#{{ article.id }}</span>
+                        </div>
+                    </div>
+                </div>
+                <button v-if="filteredArticles.length > pageLimit" class="load-more" @click="pageLimit += 50">
+                    Load More ({{ paginatedArticles.length }} of {{ filteredArticles.length }})
+                </button>
+            </template>
         </div>
     </div>
 
-    <!-- Vue.js 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <script src="js/app.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const articles = ref([]);
+                const tags = ref([]);
+                const stats = ref({ total_articles: 0, crawl_counts: {}, total_trash: 0 });
+                const loading = ref(false);
+                const searchQuery = ref('');
+                const selectedTag = ref('');
+                const sourceFilter = ref('all');
+                const pageLimit = ref(50);
+
+                const themes = ['dark', 'light', 'amber'];
+                const themeLabels = { dark: 'Dark', light: 'Light', amber: 'Amber' };
+                const currentTheme = ref(localStorage.getItem('archivist-theme') || 'dark');
+                const themeLabel = computed(() => themeLabels[currentTheme.value]);
+
+                function setTheme(t) {
+                    currentTheme.value = t;
+                    localStorage.setItem('archivist-theme', t);
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+                function cycleTheme() {
+                    const i = themes.indexOf(currentTheme.value);
+                    setTheme(themes[(i + 1) % themes.length]);
+                }
+
+                async function fetchData() {
+                    loading.value = true;
+                    try {
+                        const [a, t, s] = await Promise.all([
+                            fetch('/api/articles?page=0&limit=200'),
+                            fetch('/api/tags'),
+                            fetch('/api/stats')
+                        ]);
+                        const ad = await a.json();
+                        articles.value = ad.articles || [];
+                        tags.value = await t.json();
+                        stats.value = await s.json();
+                    } catch (e) {
+                        console.error('fetchData error', e);
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+                function refreshData() { return fetchData(); }
+
+                function formatTag(tag) {
+                    if (!tag) return 'Untagged';
+                    const map = { 'hp': 'Harry Potter', 'startup vcs/sales': 'Startup VCs / Sales', 'formula 1': 'Formula 1' };
+                    if (map[tag]) return map[tag];
+                    return tag.split('/').map(p => p.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')).join(' / ');
+                }
+                function getTagClass(tag) {
+                    if (!tag) return 'tag-interesting';
+                    return 'tag-' + tag.toLowerCase().replace(/[/\s]+/g, '-');
+                }
+                function getTagCount(tag) {
+                    return (stats.value.tag_counts || {})[tag] || 0;
+                }
+                function getHeadline(a) {
+                    return a.crawled_h1 || a.crawled_title || a.original_title || 'Untitled';
+                }
+                function openArticle(a) {
+                    if (a && a.url) window.open(a.url, '_blank', 'noopener,noreferrer');
+                }
+
+                async function updateTag(article, newTag) {
+                    article.assigned_tag = newTag || null;
+                    try {
+                        await fetch(`/api/articles/${article.id}/tag`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tag: newTag })
+                        });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function trashArticle(a) {
+                    a.deleted_at = new Date().toISOString();
+                    try {
+                        await fetch(`/api/articles/${a.id}/trash`, { method: 'POST' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function restoreArticle(a) {
+                    a.deleted_at = null;
+                    try {
+                        await fetch(`/api/articles/${a.id}/restore`, { method: 'POST' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function deleteArticlePermanently(a) {
+                    if (!confirm('Delete this article permanently?')) return;
+                    articles.value = articles.value.filter(x => x.id !== a.id);
+                    try {
+                        await fetch(`/api/articles/${a.id}/delete`, { method: 'DELETE' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+
+                const filteredArticles = computed(() => {
+                    return articles.value.filter(a => {
+                        if (sourceFilter.value === 'trash') { if (!a.deleted_at) return false; }
+                        else { if (a.deleted_at) return false; }
+                        if (sourceFilter.value !== 'all' && sourceFilter.value !== 'trash') {
+                            if (a.original_source !== sourceFilter.value) return false;
+                        }
+                        if (selectedTag.value) {
+                            if (selectedTag.value === 'untagged') { if (a.assigned_tag) return false; }
+                            else if (a.assigned_tag !== selectedTag.value) return false;
+                        }
+                        if (searchQuery.value) {
+                            const q = searchQuery.value.toLowerCase();
+                            return (a.original_title || '').toLowerCase().includes(q)
+                                || (a.crawled_h1 || '').toLowerCase().includes(q)
+                                || (a.crawled_title || '').toLowerCase().includes(q)
+                                || (a.url || '').toLowerCase().includes(q)
+                                || (a.assigned_tag || '').toLowerCase().includes(q);
+                        }
+                        return true;
+                    });
+                });
+                const paginatedArticles = computed(() => filteredArticles.value.slice(0, pageLimit.value));
+                const sortedTags = computed(() => [...tags.value].sort((a, b) => a.localeCompare(b)));
+                const untaggedCount = computed(() => articles.value.filter(a => !a.assigned_tag && !a.deleted_at).length);
+
+                onMounted(() => {
+                    setTheme(currentTheme.value);
+                    fetchData();
+                });
+
+                return {
+                    articles, tags, sortedTags, stats, loading,
+                    searchQuery, selectedTag, sourceFilter, pageLimit,
+                    paginatedArticles, filteredArticles, untaggedCount,
+                    currentTheme, themeLabel, cycleTheme,
+                    refreshData, formatTag, getTagClass, getTagCount, getHeadline,
+                    openArticle, updateTag, trashArticle, restoreArticle, deleteArticlePermanently,
+                };
+            }
+        }).mount('#app');
+    </script>
 </body>
 </html>

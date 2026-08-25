@@ -1,7 +1,7 @@
 {
   "appId": "com.archivistai.playstore",
   "appName": "Archivist AI",
-  "webDir": "web/dist",
+  "webDir": "web",
   "bundledWebRuntime": false,
   "server": {
     "url": "http://10.0.2.2:5005",

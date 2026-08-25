@@ -104,9 +104,11 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 # Flask serves the high-fidelity web bundle from the web/ folder.
 # This is ALSO the Capacitor `webDir`, so the EXACT same files ship
 # inside the Android WebView — no duplication, no drift.
+# We disable Jinja2 template rendering of index.html (because the Vue
+# template syntax {{ }} conflicts with Jinja) and serve the static file
+# directly via send_from_directory — see route "/" below.
 app = Flask(
     __name__,
-    template_folder="web",
     static_folder="web",
     static_url_path="/",
 )
@@ -307,7 +309,8 @@ def get_db_cache_key():
 # --------------------------------------------------------------------------- #
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # Serve the static PWA index.html directly (Jinja2 would choke on Vue {{ }} syntax).
+    return send_from_directory(app.static_folder, "index.html")
 
 @app.route("/api/config", methods=["GET"])
 def get_config():

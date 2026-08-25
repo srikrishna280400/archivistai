@@ -69,9 +69,12 @@
             android:name="androidx.core.splashscreen.splashscreenEnabled"
             android:value="true"/>
 
-        <!-- AdMob Auto -->
+        <!-- AdMob Auto-Initialize -->
         <meta-data
-            android:name="com.google.android.gms.ads.AdMobAuto
-            android:value="true"/>
+            android:name="com.google.android.gms.ads.PLAY_INTERACTIVE"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3263713869" />
     </application>
 </manifest>
