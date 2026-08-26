@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(java -version)",
+      "Bash(git lfs *)",
+      "Bash(git config *)",
+      "mcp__mcpm_github__create_pull_request",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git reset *)",
+      "Bash(git stash *)",
+      "Bash(python3 app.py)",
+      "Read(//tmp/**)",
+      "Bash(kill 21484)",
+      "mcp__mcpm_playwright__browser_navigate",
+      "Bash(pkill -f \"python3 app.py\")",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs kill -9)",
+      "Bash(git commit -m 'fix: correct AdMob meta-data XML, fix Capacitor webDir path, update high-fidelity PWA *)"
+    ]
+  }
+}

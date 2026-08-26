@@ -1,0 +1,49 @@
+now want i want you do by accessing these two xlsx files within which there are in total 1742 web articles, 
+1) i want you to one by one go to the original web page of these url links and strictly only by the web artcile's headline/header/topic, and absolutely not by processing all of the
+  article's content......
+
+2) organize/tag them into these categories, by creating a new consolidated xlsx file 
+
+psychology
+music
+geopoltics/history
+inspiration
+tennis
+football
+cricket
+formula 1
+badminton
+cinema
+indian politics
+indian history
+tech/science
+interesting
+literature
+hp
+startup stories
+financial markets
+misanthropy
+startup vcs/sales
+health
+
+hp means harry potter, startup vcs mean startup venture capitalists, and tags with two words with a '/' are the same tag not different and everything else is self-explanatory, also psychology tag is about neuroscience, communication, soft skills, confidence, introversion-extraversion, etc kinda related stuff while tech/science tag is about hard sciences, quantum, civilisational history/discovery, breakthrough physics, tech related stuff….all other that don’t strictly or cleanly fall into any of these tags fall in interesting tag - a good signal is op-eds, culture observation kinda stuff 
+
+3) another thing to follow i absolutely dont want any overlap with multiple tags for any artciles that have tags 
+
+hp 
+music
+tennis
+f1
+cricket
+football
+formula 1
+badminton
+cinema
+
+they must be solely within these and remain exclusive for these tags,  
+
+4) after this is done i want you to create a frontend/backend setup web app that will host and display all these files by tags, article headline, in a card form as when i click them it redirects to the og url, also lets me search/organize/edit/modify tags, and any more basic essential functionalities that you can think of.... it must be low-medium fidelity using Python Flask, HTML, JavaScript and CSS, Tailwind CSS, Typescript, Vue.js....the web cards list for all 1742 links  must be on the left side scrollable and the main window must occupy the larger space overall whenever i click on whatever web card url, the og version of the web article must show create all of those code files within the folder you're currently in and host the output/website locally  
+
+5) ignore the tags already present in those 2 files, follow only the ones i told you now above in this prompt, everything must fall within these tags, none must remain untagged
+
+6) ask if you're unsure about anything ive not made clear but don’t mess and ruin things up unnecessarily for what ive not asked of you
