@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#3b66ff">
+    <title>Archivist AI - Play Store</title>
+
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Vue 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #030712;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1e293b;
+            --surface: rgba(30, 41, 59, 0.5);
+            --surface-solid: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.15);
+            --border-solid: #334155;
+            --accent: #3b66ff;
+            --accent-hover: #2544eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-tertiary: #e2e8f0;
+            --surface: rgba(255, 255, 255, 0.7);
+            --surface-solid: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --border: rgba(100, 116, 139, 0.2);
+            --border-solid: #cbd5e1;
+        }
+        [data-theme="amber"] {
+            --bg-primary: #1f1611;
+            --bg-secondary: #2d1f15;
+            --bg-tertiary: #3d2f25;
+            --surface: rgba(45, 31, 21, 0.7);
+            --surface-solid: #2d1f15;
+            --text-primary: #fef3c7;
+            --text-secondary: #fde68a;
+            --text-tertiary: #fcd34d;
+            --border: rgba(180, 83, 9, 0.3);
+            --border-solid: #92400e;
+            --accent: #d97706;
+            --accent-hover: #b45309;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+        body {
+            background: radial-gradient(ellipse at top, var(--bg-secondary), var(--bg-primary) 70%);
+        }
+        .app { max-width: 1200px; margin: 0 auto; }
+        .topbar {
+            position: sticky; top: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px;
+            background: var(--surface);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 18px;
+            box-shadow: 0 4px 12px rgba(59, 102, 255, 0.3);
+        }
+        .logo-text {
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stats { display: flex; align-items: center; gap: 8px; }
+        .stat {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 12px; font-weight: 600;
+        }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-indigo { background: var(--accent); }
+        .dot-emerald { background: var(--success); }
+        .dot-rose { background: var(--danger); }
+        .icon-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+        .controls {
+            padding: 16px 20px;
+            display: flex; flex-direction: column; gap: 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+        .search-wrap { position: relative; }
+        .search-wrap i {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); color: var(--text-tertiary);
+        }
+        .search {
+            width: 100%; padding: 10px 14px 10px 42px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,102,255,0.15); }
+        .search::placeholder { color: var(--text-tertiary); }
+        .filter-tabs {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 4px; padding: 4px;
+            background: var(--bg-tertiary); border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 12px; font-weight: 600;
+        }
+        .filter-tab {
+            padding: 8px 4px; border-radius: 8px;
+            background: transparent; border: none;
+            color: var(--text-tertiary); cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+        .filter-tab:hover { color: var(--text-primary); }
+        .filter-tab.active {
+            background: var(--surface-solid);
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .tag-scroll {
+            display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+        }
+        .tag-scroll::-webkit-scrollbar { height: 0; }
+        .tag-pill {
+            padding: 6px 12px; border-radius: 999px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px; font-weight: 500;
+            white-space: nowrap; cursor: pointer;
+            transition: all 0.2s; flex-shrink: 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .tag-pill:hover { background: var(--surface-solid); color: var(--text-primary); }
+        .tag-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .tag-pill .count {
+            font-size: 10px; padding: 1px 6px;
+            background: rgba(0,0,0,0.25); border-radius: 999px;
+            font-weight: 700;
+        }
+        .list { padding: 16px 20px; }
+        .article {
+            padding: 16px; margin-bottom: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .article:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .article-title {
+            font-size: 15px; font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 6px 0; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .article-url {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 11px; color: var(--text-tertiary);
+            margin: 0 0 12px 0;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .article-row {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 8px;
+        }
+        .tag-badge {
+            display: inline-block;
+            padding: 3px 10px; border-radius: 999px;
+            font-size: 11px; font-weight: 600;
+            border: 1px solid;
+        }
+        .tag-badge.untagged { background: var(--bg-tertiary); color: var(--text-tertiary); border-color: var(--border); }
+        .actions { display: flex; align-items: center; gap: 6px; }
+        .select-tag, .trash-btn, .restore-btn, .delete-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-tertiary);
+            font-size: 11px; font-family: inherit;
+            padding: 4px 8px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .select-tag:hover { color: var(--text-primary); }
+        .trash-btn:hover { color: var(--danger); border-color: var(--danger); }
+        .restore-btn:hover { color: var(--success); border-color: var(--success); }
+        .delete-btn:hover { color: var(--danger); border-color: var(--danger); }
+        .id-tag {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 10px; color: var(--text-tertiary);
+            padding: 2px 6px; background: var(--bg-tertiary);
+            border-radius: 6px;
+        }
+        .source-icon { font-size: 14px; }
+        .source-pink { color: #ec4899; }
+        .source-amber { color: #f59e0b; }
+        .source-emerald { color: #10b981; }
+        .loading, .empty {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+        .loading i { font-size: 32px; color: var(--accent); }
+        .empty i { font-size: 32px; color: var(--text-tertiary); }
+        .load-more {
+            display: block; margin: 20px auto;
+            padding: 10px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--accent); font-weight: 600;
+            font-size: 12px; font-family: inherit;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .load-more:hover { background: var(--surface-solid); }
+        .theme-btn {
+            padding: 6px 12px; border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 12px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+            font-family: inherit;
+        }
+        .theme-btn:hover { border-color: var(--accent); }
+        /* Hide tag-badges colors but use them inline */
+        .tag-psychology { background: rgba(147, 51, 234, 0.15); color: #c084fc; border-color: rgba(147, 51, 234, 0.3); }
+        .tag-music { background: rgba(236, 72, 153, 0.15); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); }
+        .tag-geopoltics-history { background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+        .tag-inspiration { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3); }
+        .tag-tennis { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        .tag-football { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        .tag-cricket { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+        .tag-formula-1 { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .tag-badminton { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+        .tag-cinema { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
+        .tag-indian-politics { background: rgba(217, 70, 239, 0.15); color: #e879f9; border-color: rgba(217, 70, 239, 0.3); }
+        .tag-indian-history { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+        .tag-tech-science { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border-color: rgba(6, 182, 212, 0.3); }
+        .tag-interesting { background: rgba(107, 114, 128, 0.15); color: #9ca3af; border-color: rgba(107, 114, 128, 0.3); }
+        .tag-literature { background: rgba(129, 140, 248, 0.15); color: #818cf8; border-color: rgba(129, 140, 248, 0.3); }
+        .tag-hp { background: rgba(192, 132, 252, 0.15); color: #c084fc; border-color: rgba(192, 132, 252, 0.3); }
+        .tag-startup-stories { background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.3); }
+        .tag-financial-markets { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        .tag-misanthropy { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+        .tag-startup-vcs-sales { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
+        .tag-health { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; border-color: rgba(20, 184, 166, 0.3); }
+    </style>
+</head>
+<body>
+    <div id="app" class="app">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-box-archive"></i></div>
+                <div class="logo-text">Archivist AI</div>
+            </div>
+            <div class="stats">
+                <div class="stat" title="Total Articles">
+                    <span class="dot dot-indigo"></span>
+                    <span>{{ stats.total_articles || 0 }}</span>
+                </div>
+                <div class="stat" title="Crawled">
+                    <span class="dot dot-emerald"></span>
+                    <span>{{ stats.crawl_counts?.success || 0 }}</span>
+                </div>
+                <div class="stat" title="Trash">
+                    <span class="dot dot-rose"></span>
+                    <span>{{ stats.total_trash || 0 }}</span>
+                </div>
+                <button class="icon-btn" @click="refreshData" title="Refresh">
+                    <i class="fa-solid fa-rotate" :class="{'fa-spin': loading}"></i>
+                </button>
+                <button class="theme-btn" @click="cycleTheme" title="Switch theme">
+                    <i class="fa-solid fa-palette"></i>
+                    <span>{{ themeLabel }}</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search" v-model="searchQuery" placeholder="Search articles by title, URL, tag..." />
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-tab" :class="{active: sourceFilter==='all'}" @click="sourceFilter='all'">All</button>
+                <button class="filter-tab" :class="{active: sourceFilter==='pocket'}" @click="sourceFilter='pocket'">
+                    <i class="fa-brands fa-get-pocket source-pink"></i> <span style="display:none">Pocket</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='instapaper'}" @click="sourceFilter='instapaper'">
+                    <i class="fa-solid fa-bookmark source-amber"></i> <span style="display:none">Insta</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='shared'}" @click="sourceFilter='shared'">
+                    <i class="fa-solid fa-share-nodes source-emerald"></i> <span style="display:none">Shared</span>
+                </button>
+                <button class="filter-tab" :class="{active: sourceFilter==='trash'}" @click="sourceFilter='trash'">
+                    <i class="fa-solid fa-trash-can"></i> <span style="display:none">Trash</span>
+                </button>
+            </div>
+            <div class="tag-scroll">
+                <button class="tag-pill" :class="{active: selectedTag===''}" @click="selectedTag=''">
+                    All <span class="count">{{ stats.total_articles || 0 }}</span>
+                </button>
+                <button class="tag-pill" :class="{active: selectedTag==='untagged'}" @click="selectedTag='untagged'">
+                    Untagged <span class="count">{{ untaggedCount }}</span>
+                </button>
+                <button v-for="tag in sortedTags" :key="tag"
+                        class="tag-pill" :class="{active: selectedTag===tag}"
+                        @click="selectedTag = tag">
+                    {{ formatTag(tag) }}
+                    <span class="count">{{ getTagCount(tag) }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Articles List -->
+        <div class="list">
+            <div v-if="loading" class="loading">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading your library...</p>
+            </div>
+            <div v-else-if="filteredArticles.length === 0" class="empty">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No articles match your filters.</p>
+            </div>
+            <template v-else>
+                <div v-for="article in paginatedArticles" :key="article.id" class="article" @click="openArticle(article)">
+                    <h3 class="article-title">{{ getHeadline(article) }}</h3>
+                    <p class="article-url">{{ article.url }}</p>
+                    <div class="article-row">
+                        <div>
+                            <span v-if="article.assigned_tag" class="tag-badge" :class="getTagClass(article.assigned_tag)">
+                                {{ formatTag(article.assigned_tag) }}
+                            </span>
+                            <span v-else class="tag-badge untagged">Untagged</span>
+                            <span v-if="article.original_source==='pocket'" class="source-icon source-pink" style="margin-left:8px"><i class="fa-brands fa-get-pocket"></i></span>
+                            <span v-else-if="article.original_source==='instapaper'" class="source-icon source-amber" style="margin-left:8px"><i class="fa-solid fa-bookmark"></i></span>
+                            <span v-else-if="article.original_source==='shared'" class="source-icon source-emerald" style="margin-left:8px"><i class="fa-solid fa-share-nodes"></i></span>
+                        </div>
+                        <div class="actions" @click.stop>
+                            <select v-if="!article.deleted_at" class="select-tag" @change="updateTag(article, $event.target.value)">
+                                <option value="" :selected="!article.assigned_tag">Untagged</option>
+                                <option v-for="t in sortedTags" :key="t" :value="t" :selected="article.assigned_tag === t">{{ formatTag(t) }}</option>
+                            </select>
+                            <button v-if="!article.deleted_at" class="trash-btn" @click="trashArticle(article)" title="Move to Trash">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                            <template v-else>
+                                <button class="restore-btn" @click="restoreArticle(article)" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>
+                                <button class="delete-btn" @click="deleteArticlePermanently(article)" title="Delete permanently"><i class="fa-solid fa-trash-can"></i></button>
+                            </template>
+                            <span class="id-tag">#{{ article.id }}</span>
+                        </div>
+                    </div>
+                </div>
+                <button v-if="filteredArticles.length > pageLimit" class="load-more" @click="pageLimit += 50">
+                    Load More ({{ paginatedArticles.length }} of {{ filteredArticles.length }})
+                </button>
+            </template>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                const articles = ref([]);
+                const tags = ref([]);
+                const stats = ref({ total_articles: 0, crawl_counts: {}, total_trash: 0 });
+                const loading = ref(false);
+                const searchQuery = ref('');
+                const selectedTag = ref('');
+                const sourceFilter = ref('all');
+                const pageLimit = ref(50);
+
+                const themes = ['dark', 'light', 'amber'];
+                const themeLabels = { dark: 'Dark', light: 'Light', amber: 'Amber' };
+                const currentTheme = ref(localStorage.getItem('archivist-theme') || 'dark');
+                const themeLabel = computed(() => themeLabels[currentTheme.value]);
+
+                function setTheme(t) {
+                    currentTheme.value = t;
+                    localStorage.setItem('archivist-theme', t);
+                    document.documentElement.setAttribute('data-theme', t);
+                }
+                function cycleTheme() {
+                    const i = themes.indexOf(currentTheme.value);
+                    setTheme(themes[(i + 1) % themes.length]);
+                }
+
+                async function fetchData() {
+                    loading.value = true;
+                    try {
+                        const [a, t, s] = await Promise.all([
+                            fetch('/api/articles?page=0&limit=200'),
+                            fetch('/api/tags'),
+                            fetch('/api/stats')
+                        ]);
+                        const ad = await a.json();
+                        articles.value = ad.articles || [];
+                        tags.value = await t.json();
+                        stats.value = await s.json();
+                    } catch (e) {
+                        console.error('fetchData error', e);
+                    } finally {
+                        loading.value = false;
+                    }
+                }
+                function refreshData() { return fetchData(); }
+
+                function formatTag(tag) {
+                    if (!tag) return 'Untagged';
+                    const map = { 'hp': 'Harry Potter', 'startup vcs/sales': 'Startup VCs / Sales', 'formula 1': 'Formula 1' };
+                    if (map[tag]) return map[tag];
+                    return tag.split('/').map(p => p.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')).join(' / ');
+                }
+                function getTagClass(tag) {
+                    if (!tag) return 'tag-interesting';
+                    return 'tag-' + tag.toLowerCase().replace(/[/\s]+/g, '-');
+                }
+                function getTagCount(tag) {
+                    return (stats.value.tag_counts || {})[tag] || 0;
+                }
+                function getHeadline(a) {
+                    return a.crawled_h1 || a.crawled_title || a.original_title || 'Untitled';
+                }
+                function openArticle(a) {
+                    if (a && a.url) window.open(a.url, '_blank', 'noopener,noreferrer');
+                }
+
+                async function updateTag(article, newTag) {
+                    article.assigned_tag = newTag || null;
+                    try {
+                        await fetch(`/api/articles/${article.id}/tag`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tag: newTag })
+                        });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function trashArticle(a) {
+                    a.deleted_at = new Date().toISOString();
+                    try {
+                        await fetch(`/api/articles/${a.id}/trash`, { method: 'POST' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function restoreArticle(a) {
+                    a.deleted_at = null;
+                    try {
+                        await fetch(`/api/articles/${a.id}/restore`, { method: 'POST' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+                async function deleteArticlePermanently(a) {
+                    if (!confirm('Delete this article permanently?')) return;
+                    articles.value = articles.value.filter(x => x.id !== a.id);
+                    try {
+                        await fetch(`/api/articles/${a.id}/delete`, { method: 'DELETE' });
+                        const sr = await fetch('/api/stats');
+                        stats.value = await sr.json();
+                    } catch (e) { console.error(e); }
+                }
+
+                const filteredArticles = computed(() => {
+                    return articles.value.filter(a => {
+                        if (sourceFilter.value === 'trash') { if (!a.deleted_at) return false; }
+                        else { if (a.deleted_at) return false; }
+                        if (sourceFilter.value !== 'all' && sourceFilter.value !== 'trash') {
+                            if (a.original_source !== sourceFilter.value) return false;
+                        }
+                        if (selectedTag.value) {
+                            if (selectedTag.value === 'untagged') { if (a.assigned_tag) return false; }
+                            else if (a.assigned_tag !== selectedTag.value) return false;
+                        }
+                        if (searchQuery.value) {
+                            const q = searchQuery.value.toLowerCase();
+                            return (a.original_title || '').toLowerCase().includes(q)
+                                || (a.crawled_h1 || '').toLowerCase().includes(q)
+                                || (a.crawled_title || '').toLowerCase().includes(q)
+                                || (a.url || '').toLowerCase().includes(q)
+                                || (a.assigned_tag || '').toLowerCase().includes(q);
+                        }
+                        return true;
+                    });
+                });
+                const paginatedArticles = computed(() => filteredArticles.value.slice(0, pageLimit.value));
+                const sortedTags = computed(() => [...tags.value].sort((a, b) => a.localeCompare(b)));
+                const untaggedCount = computed(() => articles.value.filter(a => !a.assigned_tag && !a.deleted_at).length);
+
+                onMounted(() => {
+                    setTheme(currentTheme.value);
+                    fetchData();
+                });
+
+                return {
+                    articles, tags, sortedTags, stats, loading,
+                    searchQuery, selectedTag, sourceFilter, pageLimit,
+                    paginatedArticles, filteredArticles, untaggedCount,
+                    currentTheme, themeLabel, cycleTheme,
+                    refreshData, formatTag, getTagClass, getTagCount, getHeadline,
+                    openArticle, updateTag, trashArticle, restoreArticle, deleteArticlePermanently,
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

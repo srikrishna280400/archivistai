@@ -1,0 +1,28 @@
+{
+  "name": "archivist-ai-playstore",
+  "version": "1.0.0",
+  "description": "Archivist AI - High-fidelity Android app for article library (Play Store version)",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "android:add": "npx cap add android",
+    "android:sync": "npx cap sync",
+    "android:open": "npx cap open android",
+    "android:build": "npx cap copy android && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/app": "^5.0.6",
+    "@capacitor/haptics": "^5.0.4",
+    "@capacitor/keyboard": "^5.0.4",
+    "@capacitor/status-bar": "^5.0.4",
+    "@capacitor/android": "^5.0.6",
+    "@capacitor/core": "^5.0.6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^5.0.6",
+    "vite": "^5.0.8",
+    "vite-plugin-pwa": "^0.17.2"
+  }
+}

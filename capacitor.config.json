@@ -1,0 +1,38 @@
+{
+  "appId": "com.archivistai.playstore",
+  "appName": "Archivist AI",
+  "webDir": "web",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://10.0.2.2:5005",
+    "cleartextTraffic": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "capturesKeyboardViewState": true,
+    "splash": {
+      "dark theme": true
+    },
+    "adaptiveIcon": {
+      "foregroundImage": "res/icon-flexible.png",
+      "backgroundColor": "#030712"
+    }
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "030712",
+      "backgroundColorDark": "030712",
+      "androidScaleType": "CENTER_CROP",
+      "darkTheme": true,
+      "splashShowsImages": true,
+      "fullscreen": false
+    },
+    "AdMob": {
+      "adIdBanner": "ca-app-pub-3940256099942544/6300978111",
+      "adIdInterstitial": "ca-app-pub-3940256099942544/1033173712",
+      "adIdRewarded": "ca-app-pub-3940256099942544/8653449037"
+    }
+  }
+}
